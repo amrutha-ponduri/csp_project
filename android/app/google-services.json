@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "911782972979",
+    "project_id": "smart-expend",
+    "storage_bucket": "smart-expend.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:911782972979:android:12d6ca90b341f14a3c1d46",
+        "android_client_info": {
+          "package_name": "com.example.smart_expend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDothpgVEx-9K8cP4MP7Sb6YjNP2_mKLLk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
