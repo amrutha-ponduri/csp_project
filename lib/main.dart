@@ -3,10 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_expend/firebase_options.dart';
 void main() async{
-  WidgetsFlutterBinding.ensureInitialized();
-  if(kReleaseMode){
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
-  }
+  // WidgetsFlutterBinding.ensureInitialized();
+  // if(kReleaseMode){
+  //   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
+  // }
   runApp(const MyApp());
 }
 
