@@ -2,7 +2,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 class AddexpenseModal extends StatefulWidget {
   final List<String> expenseNames;
   final List<double> expenseValues;
@@ -13,6 +13,7 @@ class AddexpenseModal extends StatefulWidget {
 
 class _AddexpenseModalState extends State<AddexpenseModal> {
   final _formKey = GlobalKey<FormState>();
+  var db = FirebaseFirestore.instance;
   String expenseName = "";
   double expenseValue = 0;
   @override
@@ -89,6 +90,12 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                     print(expenseValue);
                     widget.expenseNames.add(expenseName);
                     widget.expenseValues.add(expenseValue);
+                    var userReference=db.collection("users").doc("user1");
+                    userReference.collection("dailyExpnese").add(<String,dynamic>{
+                      'expenseName' : expenseName,
+                      'expenseValue': expenseValue,
+                    });
+                    print("Addition successful");
                     Navigator.pop(context);
                   }
                 },
