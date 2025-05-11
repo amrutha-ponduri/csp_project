@@ -1,11 +1,12 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AddexpenseModal extends StatefulWidget {
-  
   final List<String> expenseNames;
   final List<double> expenseValues;
-  const AddexpenseModal(this.expenseNames,this.expenseValues,{super.key});
+  const AddexpenseModal(this.expenseNames, this.expenseValues, {super.key});
   @override
   State<AddexpenseModal> createState() => _AddexpenseModalState();
 }
@@ -33,12 +34,12 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                     hintFadeDuration: const Duration(milliseconds: 30),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                          color: Colors.black,
-                          width: 1,
-                        ),
+                      borderSide: const BorderSide(
+                        color: Colors.black,
+                        width: 1,
+                      ),
                     ),
-                    focusedErrorBorder: OutlineInputBorder(
+                    errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide:
                             const BorderSide(color: Colors.red, width: 1.5)),
@@ -51,7 +52,7 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                 validator: (value) {
                   return validateExpenseName(value);
                 },
-                onSaved: (newValue) => expenseName=newValue!,
+                onSaved: (newValue) => expenseName = newValue!,
               ),
               TextFormField(
                 autocorrect: true,
@@ -60,10 +61,10 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                     hintFadeDuration: const Duration(milliseconds: 30),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                          color: Colors.black,
-                          width: 1,
-                        ),
+                      borderSide: const BorderSide(
+                        color: Colors.black,
+                        width: 1,
+                      ),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -74,22 +75,25 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                         borderSide: const BorderSide(
                           color: Colors.black,
                           width: 1,
-                        ))),       
+                        ))),
                 validator: (value) {
                   return validateExpenseValue(value);
                 },
-                onSaved: (newValue)=> expenseValue=double.parse(newValue!),
+                onSaved: (newValue) => expenseValue = double.parse(newValue!),
               ),
-              ElevatedButton(onPressed: (){
-                if(_formKey.currentState!.validate()){
-                  _formKey.currentState!.save();
-                  print(expenseName);
-                  print(expenseValue);
-                  widget.expenseNames.add(expenseName);
-                  widget.expenseValues.add(expenseValue);
-                  Navigator.pop(context);
-                }
-              }, child: Text('Add'),),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    print(expenseName);
+                    print(expenseValue);
+                    widget.expenseNames.add(expenseName);
+                    widget.expenseValues.add(expenseValue);
+                    Navigator.pop(context);
+                  }
+                },
+                child: Text('Add'),
+              ),
             ],
           ),
         ),
@@ -98,17 +102,17 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
   }
 
   validateExpenseName(String? value) {
-    if (value==null||value.isEmpty) {
+    if (value == null || value.isEmpty) {
       return "Must fill an expense name";
     }
     return null;
   }
-  
+
   validateExpenseValue(String? value) {
-    if(value==null||value.isEmpty){
+    if (value == null || value.isEmpty) {
       return "Must fill expense value";
     }
-    if(double.tryParse(value)==null){
+    if (double.tryParse(value) == null) {
       return "Enter valid expense value";
     }
     return null;
