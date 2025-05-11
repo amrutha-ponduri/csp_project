@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -18,13 +17,14 @@ class _TargetPageState extends State<TargetPage> {
 
   final List<Map<String, dynamic>> _savedTargets = [];
 
-  final List<String> _currencies = [
-    'USD (\$)',
-    'EUR (€)',
-    'INR (₹)',
-    'GBP (£)',
-    'JPY (¥)'
-  ];
+  final Map<String, String> _currencies = {
+    'USD (\$)': '\$',
+    'EUR (€)': '€',
+    'INR (₹)': '₹',
+    'GBP (£)': '£',
+    'JPY (¥)': '¥',
+  };
+
   String _selectedCurrency = 'USD (\$)';
 
   Future<void> _pickDate() async {
@@ -121,162 +121,166 @@ class _TargetPageState extends State<TargetPage> {
 
   @override
   Widget build(BuildContext context) {
+    final currencySymbol = _currencies[_selectedCurrency] ?? '';
+
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF00B4DB), Color(0xFF0083B0)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
-                Text(
-                  'Plan Your Purchase',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
+      appBar: AppBar(
+        title: const Text("Set Purchase Target"),
+        backgroundColor: const Color(0xFF0083B0),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              const SizedBox(height: 10),
+              Text(
+                'Plan Your Purchase',
+                style: TextStyle(
+                  color: Colors.teal[800],
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 20),
-                Card(
-                  elevation: 8,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap: _pickImage,
-                            child: CircleAvatar(
-                              radius: 60,
-                              backgroundColor: Colors.teal.shade50,
-                              backgroundImage: _imageFile != null
-                                  ? FileImage(_imageFile!)
-                                  : null,
-                              child: _imageFile == null
-                                  ? Icon(Icons.add_a_photo,
-                                      size: 40, color: Colors.grey)
-                                  : null,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          _buildTextField(
-                            controller: _productController,
-                            label: 'What do you want to buy?',
-                            icon: Icons.shopping_cart,
-                            validator: (value) => value!.isEmpty
-                                ? 'Please enter a product name'
+              ),
+              const SizedBox(height: 20),
+              Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        GestureDetector(
+                          onTap: _pickImage,
+                          child: CircleAvatar(
+                            radius: 60,
+                            backgroundColor: Colors.teal.shade50,
+                            backgroundImage: _imageFile != null
+                                ? FileImage(_imageFile!)
+                                : null,
+                            child: _imageFile == null
+                                ? Icon(Icons.add_a_photo,
+                                    size: 40, color: Colors.grey)
                                 : null,
                           ),
-                          const SizedBox(height: 20),
-                          GestureDetector(
-                            onTap: _pickDate,
-                            child: AbsorbPointer(
-                              child: _buildTextField(
-                                label: _selectedDate == null
-                                    ? 'By when do you want to buy?'
-                                    : 'Buy by: ${DateFormat('dd-MM-yyyy').format(_selectedDate!)}',
-                                icon: Icons.calendar_today,
-                                validator: (_) => null,
-                              ),
+                        ),
+                        const SizedBox(height: 20),
+                        _buildTextField(
+                          controller: _productController,
+                          label: 'What do you want to buy?',
+                          icon: Icons.shopping_cart,
+                          validator: (value) => value!.isEmpty
+                              ? 'Please enter a product name'
+                              : null,
+                        ),
+                        const SizedBox(height: 20),
+                        GestureDetector(
+                          onTap: _pickDate,
+                          child: AbsorbPointer(
+                            child: _buildTextField(
+                              label: _selectedDate == null
+                                  ? 'By when do you want to buy?'
+                                  : 'Buy by: ${DateFormat('dd-MM-yyyy').format(_selectedDate!)}',
+                              icon: Icons.calendar_today,
+                              validator: (_) => null,
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: DropdownButtonFormField<String>(
-                                  value: _selectedCurrency,
-                                  items: _currencies.map((currency) {
-                                    return DropdownMenuItem<String>(
-                                      value: currency,
-                                      child: Text(currency),
-                                    );
-                                  }).toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _selectedCurrency = value!;
-                                    });
-                                  },
-                                  decoration: InputDecoration(
-                                    labelText: 'Currency',
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: DropdownButtonFormField<String>(
+                                value: _selectedCurrency,
+                                items: _currencies.keys.map((currency) {
+                                  return DropdownMenuItem<String>(
+                                    value: currency,
+                                    child: Text(currency),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedCurrency = value!;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  labelText: 'Currency',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                flex: 3,
-                                child: _buildTextField(
-                                  controller: _amountController,
-                                  label: 'Amount',
-                                  icon: Icons.attach_money,
-                                  keyboardType: TextInputType.number,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter an amount';
-                                    }
-                                    if (double.tryParse(value) == null) {
-                                      return 'Enter a valid number';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 30),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              ElevatedButton(
-                                onPressed: _handleAdd,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.teal,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 30, vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              flex: 3,
+                              child: TextFormField(
+                                controller: _amountController,
+                                keyboardType: TextInputType.number,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter an amount';
+                                  }
+                                  if (double.tryParse(value) == null) {
+                                    return 'Enter a valid number';
+                                  }
+                                  return null;
+                                },
+                                decoration: InputDecoration(
+                                  labelText: 'Amount',
+                                  prefixText: currencySymbol,
+                                  prefixStyle: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                child: const Text('Add'),
                               ),
-                              OutlinedButton(
-                                onPressed: _handleSubmit,
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 30, vertical: 12),
-                                  side: const BorderSide(color: Colors.teal),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              onPressed: _handleAdd,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.teal,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 30, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Text('Submit'),
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
+                              child: const Text('Add'),
+                            ),
+                            OutlinedButton(
+                              onPressed: _handleSubmit,
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 30, vertical: 12),
+                                side: const BorderSide(color: Colors.teal),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text('Submit'),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
