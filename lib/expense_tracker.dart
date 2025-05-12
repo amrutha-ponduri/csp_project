@@ -4,22 +4,6 @@ import 'package:intl/intl.dart';
 import 'pages/monthendpage.dart';
 // import your data module
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.light(),
-      home: const ExpensePieChartPage(),
-    );
-  }
-}
-
 class ExpensePieChartPage extends StatefulWidget {
   const ExpensePieChartPage({super.key});
 
