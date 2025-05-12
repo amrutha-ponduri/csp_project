@@ -18,7 +18,6 @@ class DailyExpenses extends StatefulWidget {
 
 class _DailyExpensesState extends State<DailyExpenses> {
   var db = FirebaseFirestore.instance;
-  dynamic document;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +40,7 @@ class _DailyExpensesState extends State<DailyExpenses> {
                 : ListView.separated(
                     itemCount: snapshot.data!.docs.length,
                     itemBuilder: (context, index) {
-                      document = snapshot.data!.docs[index];
+                      var document = snapshot.data!.docs[index];
                       Map<String, dynamic> data = document.data();
                       LoadData dataObj = LoadData.fromJson(data);
                       return Padding(
