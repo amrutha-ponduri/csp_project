@@ -3,10 +3,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AddexpenseModal extends StatefulWidget {
-  final List<String> expenseNames;
-  final List<double> expenseValues;
-  const AddexpenseModal(this.expenseNames, this.expenseValues, {super.key});
+  final String option;
+  final String? expenseName;
+  final double? expenseValue;
+  const AddexpenseModal(
+      {super.key, required this.option, this.expenseName, this.expenseValue});
   @override
   State<AddexpenseModal> createState() => _AddexpenseModalState();
 }
@@ -18,6 +21,12 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
   double expenseValue = 0;
   @override
   Widget build(BuildContext context) {
+    TextEditingController expenseNameController = TextEditingController();
+    TextEditingController expenseValueController = TextEditingController();
+    if (widget.option == 'edit') {
+      expenseNameController.text = widget.expenseName!;
+      expenseValueController.text = widget.expenseValue!.toString();
+    }
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SizedBox(
@@ -29,6 +38,7 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               TextFormField(
+                controller: expenseNameController,
                 autocorrect: true,
                 decoration: InputDecoration(
                     hintText: 'What did you spend for?',
@@ -56,6 +66,7 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                 onSaved: (newValue) => expenseName = newValue!,
               ),
               TextFormField(
+                controller: expenseValueController,
                 autocorrect: true,
                 decoration: InputDecoration(
                     hintText: 'How much did you spend?',
@@ -82,25 +93,26 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                 },
                 onSaved: (newValue) => expenseValue = double.parse(newValue!),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    print(expenseName);
-                    print(expenseValue);
-                    widget.expenseNames.add(expenseName);
-                    widget.expenseValues.add(expenseValue);
-                    var userReference=db.collection("users").doc("user1");
-                    userReference.collection("dailyExpnese").add(<String,dynamic>{
-                      'expenseName' : expenseName,
-                      'expenseValue': expenseValue,
-                    });
-                    print("Addition successful");
-                    Navigator.pop(context);
-                  }
-                },
-                child: Text('Add'),
-              ),
+              widget.option == 'add'
+                  ? ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          var userReference =
+                              db.collection("users").doc("user1");
+                          userReference
+                              .collection("dailyExpenses")
+                              .add(<String, dynamic>{
+                            'expenseName': expenseName,
+                            'expenseValue': expenseValue,
+                          });
+                          Navigator.pop(context);
+                        }
+                      },
+                      child: const Text('Add'),
+                    )
+                  : ElevatedButton(
+                      onPressed: () {}, child: const Text('Update'))
             ],
           ),
         ),
