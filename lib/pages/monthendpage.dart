@@ -1,11 +1,16 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+// monthendpage.dart
+class MonthEndData {
+  static double expenses = 0.0;
+  static double savings = 0.0;
+  static String currency = 'USD'; // Default currency code
 
-class MonthEndPage extends StatelessWidget {
-  const MonthEndPage({super.key});
+  static void updateData(
+      {required double newExpenses, required double newSavings}) {
+    expenses = newExpenses;
+    savings = newSavings;
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
+  static void updateCurrency(String newCurrency) {
+    currency = newCurrency;
   }
 }

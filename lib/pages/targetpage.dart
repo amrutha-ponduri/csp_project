@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 class TargetPage extends StatefulWidget {
+  const TargetPage({super.key});
+
   @override
   _TargetPageState createState() => _TargetPageState();
 }
@@ -96,7 +98,7 @@ class _TargetPageState extends State<TargetPage> {
 
   void _showSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: Duration(seconds: 2)),
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
     );
   }
 
@@ -164,7 +166,7 @@ class _TargetPageState extends State<TargetPage> {
                                 ? FileImage(_imageFile!)
                                 : null,
                             child: _imageFile == null
-                                ? Icon(Icons.add_a_photo,
+                                ? const Icon(Icons.add_a_photo,
                                     size: 40, color: Colors.grey)
                                 : null,
                           ),
