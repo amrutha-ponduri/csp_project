@@ -9,7 +9,7 @@ import 'package:smart_expend/loading_data/expensemodel.dart';
 import 'package:smart_expend/loading_data/get_data.dart';
 import 'package:smart_expend/widgets/addexpense_modal.dart';
 import 'package:smart_expend/widgets/snackbarwidget.dart';
-import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+
 class DailyExpenses extends StatefulWidget {
   const DailyExpenses({super.key});
 
