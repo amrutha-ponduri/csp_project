@@ -8,8 +8,13 @@ class AddexpenseModal extends StatefulWidget {
   final String option;
   final String? expenseName;
   final double? expenseValue;
+  final DocumentReference? documentReference;
   const AddexpenseModal(
-      {super.key, required this.option, this.expenseName, this.expenseValue});
+      {super.key,
+      required this.option,
+      this.expenseName,
+      this.expenseValue,
+      this.documentReference});
   @override
   State<AddexpenseModal> createState() => _AddexpenseModalState();
 }
@@ -54,6 +59,10 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                         borderRadius: BorderRadius.circular(10),
                         borderSide:
                             const BorderSide(color: Colors.red, width: 1.5)),
+                    focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide:
+                            const BorderSide(color: Colors.red, width: 1.5)),
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: const BorderSide(
@@ -78,6 +87,10 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                         width: 1,
                       ),
                     ),
+                    errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide:
+                            const BorderSide(color: Colors.red, width: 1.5)),
                     focusedErrorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide:
@@ -105,6 +118,7 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                               .add(<String, dynamic>{
                             'expenseName': expenseName,
                             'expenseValue': expenseValue,
+                            'timeStamp': DateTime.now(),
                           });
                           Navigator.pop(context);
                         }
@@ -112,7 +126,18 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                       child: const Text('Add'),
                     )
                   : ElevatedButton(
-                      onPressed: () {}, child: const Text('Update'))
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          widget.documentReference!.set(<String, dynamic>{
+                            'expenseName': expenseName,
+                            'expenseValue': expenseValue,
+                            'timeStamp': DateTime.now(),
+                          });
+                          Navigator.pop(context);
+                        }
+                      },
+                      child: const Text('Update'))
             ],
           ),
         ),
