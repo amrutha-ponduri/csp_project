@@ -1,12 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+
 class Expense {
   final String title;
   final double amount;
   final DateTime date;
   final DocumentReference docReference;
-  Expense({required this.title, required this.amount, required this.date,required this.docReference});
+  Expense(
+      {required this.title,
+      required this.amount,
+      required this.date,
+      required this.docReference});
 }
+
 abstract class ExpenseItem {}
 
 class ExpenseHeader implements ExpenseItem {
@@ -18,6 +24,7 @@ class ExpenseEntry implements ExpenseItem {
   final Expense expense;
   ExpenseEntry(this.expense);
 }
+
 List<ExpenseItem> buildGroupedExpenseList(List<Expense> expenses) {
   final Map<String, List<Expense>> grouped = {};
 

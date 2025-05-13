@@ -21,8 +21,8 @@ class _DailyExpensesState extends State<DailyExpenses> {
   var db = FirebaseFirestore.instance;
   @override
   Widget build(BuildContext context) {
-    DateTime startDate=DateTime(DateTime.now().year,DateTime.now().month,1);
-    Timestamp startTimeStamp=Timestamp.fromDate(startDate);
+    DateTime startDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
+    Timestamp startTimeStamp = Timestamp.fromDate(startDate);
     return Scaffold(
       appBar: AppBar(
         actions: const [],
@@ -35,12 +35,12 @@ class _DailyExpensesState extends State<DailyExpenses> {
             .collection('users')
             .doc('user1')
             .collection('dailyExpenses')
-            .where('timeStamp',isGreaterThanOrEqualTo: startTimeStamp)
+            .where('timeStamp', isGreaterThanOrEqualTo: startTimeStamp)
             .orderBy('timeStamp', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            if(snapshot.data!.docs.isEmpty){
+            if (snapshot.data!.docs.isEmpty) {
               return const Center(
                 child: Text('No expenses added'),
               );
@@ -56,100 +56,110 @@ class _DailyExpensesState extends State<DailyExpenses> {
             }).toList();
             final items = buildGroupedExpenseList(expenses);
             return ListView.separated(
-              separatorBuilder: (context, index) {
-                return const SizedBox(
-                  height: 0,
-                  width: double.infinity,
-                );
-              },
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item=items[index];
-                if(item is ExpenseHeader){
-                  return Center(
-                    child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
-                    child: Text(
-                      item.label,
-                      style: const TextStyle(color: Color.fromARGB(255, 2, 61, 109)),
-                    ),
-                                    ),
+                separatorBuilder: (context, index) {
+                  return const SizedBox(
+                    height: 0,
+                    width: double.infinity,
                   );
-                }
-                else if(item is ExpenseEntry){
-                  final e = item.expense;
-                  return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ClayContainer(
-                    emboss: true,
-                    borderRadius: 6,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: ClayText(
-                              e.title,
-                              emboss: true,
-                              color: const Color.fromARGB(255, 145, 185, 218),
-                            ),
+                },
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  if (item is ExpenseHeader) {
+                    return Center(
+                      child: Container(
+                        margin: const EdgeInsets.only(top: 10),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 97, 127, 151),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            item.label,
+                            style: const TextStyle(
+                                color: Color.fromARGB(255, 2, 61, 109)),
                           ),
-                          Expanded(
-                            flex: 3,
-                            child: ClayText(
-                              e.amount.toStringAsFixed(2),
-                              emboss: true,
-                              color: const Color.fromARGB(255, 145, 185, 218),
-                            ),
-                          ),
-                          PopupMenuButton(onSelected: (value) async {
-                            if (value == 'delete') {
-                              try {
-                                await e.docReference.delete();
-                              } on FirebaseException {
-                                Snackbarwidget snackbar = Snackbarwidget(
-                                    backgroundColor: const Color.fromARGB(
-                                        255, 239, 156, 151),
-                                    content: 'Unable to delete',
-                                    textColor:
-                                        const Color.fromARGB(255, 83, 9, 9));
-                                snackbar.showSnackBar();
-                              }
-                            } else if (value == 'edit') {
-                              Future.microtask(() {
-                                showModal(
-                                  expenseName: e.title,
-                                  expenseValue: e.amount,
-                                  documentReference: e.docReference,
-                                );
-                              });
-                            }
-                          }, itemBuilder: (context) {
-                            return [
-                              const PopupMenuItem(
-                                value: 'edit',
-                                child: Text('Edit'),
-                              ),
-                              const PopupMenuItem(
-                                value: 'delete',
-                                child: Text('Delete'),
-                              )
-                            ];
-                          })
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-              }
-            );
+                    );
+                  } else if (item is ExpenseEntry) {
+                    final e = item.expense;
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ClayContainer(
+                        emboss: true,
+                        borderRadius: 6,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                flex: 3,
+                                child: ClayText(
+                                  e.title,
+                                  emboss: true,
+                                  color:
+                                      const Color.fromARGB(255, 145, 185, 218),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 3,
+                                child: ClayText(
+                                  e.amount.toStringAsFixed(2),
+                                  emboss: true,
+                                  color:
+                                      const Color.fromARGB(255, 145, 185, 218),
+                                ),
+                              ),
+                              PopupMenuButton(onSelected: (value) async {
+                                if (value == 'delete') {
+                                  try {
+                                    await e.docReference.delete();
+                                  } on FirebaseException {
+                                    Snackbarwidget snackbar = Snackbarwidget(
+                                        backgroundColor: const Color.fromARGB(
+                                            255, 239, 156, 151),
+                                        content: 'Unable to delete',
+                                        textColor: const Color.fromARGB(
+                                            255, 83, 9, 9));
+                                    snackbar.showSnackBar();
+                                  }
+                                } else if (value == 'edit') {
+                                  Future.microtask(() {
+                                    showModal(
+                                      expenseName: e.title,
+                                      expenseValue: e.amount,
+                                      documentReference: e.docReference,
+                                    );
+                                  });
+                                }
+                              }, itemBuilder: (context) {
+                                return [
+                                  const PopupMenuItem(
+                                    value: 'edit',
+                                    child: Text('Edit'),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'delete',
+                                    child: Text('Delete'),
+                                  )
+                                ];
+                              })
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                });
           }
-          return const Center(child: CircularProgressIndicator(),);
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
