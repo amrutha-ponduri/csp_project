@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class DailyExpenses extends StatelessWidget {
@@ -5,6 +6,11 @@ class DailyExpenses extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      body: Center(child: TextButton(child:const Text('Signout'),onPressed: () async{
+        await FirebaseAuth.instance.signOut();
+      },)),
+
+    );
   }
 }

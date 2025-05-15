@@ -20,7 +20,8 @@ class RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController ageController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController=TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   String? emailAddress;
   String? password;
@@ -42,41 +43,16 @@ class RegistrationScreenState extends State<RegistrationScreen> {
     }
   }
 
-  Future<void> _signInWithGoogle() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    final GoogleSignInAccount? account = await googleSignIn.signIn();
-
-    if (account != null) {
-      setState(() {
-        nameController.text = account.displayName ?? '';
-        emailController.text = account.email;
-      });
-    }
-  }
-
-  Future<void> _signInWithFacebook() async {
-    final LoginResult result = await FacebookAuth.instance.login();
-
-    if (result.status == LoginStatus.success) {
-      final userData = await FacebookAuth.instance.getUserData();
-      setState(() {
-        nameController.text = userData['name'] ?? '';
-        emailController.text = userData['email'] ?? '';
-      });
-    }
-  }
-
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       // All fields are valid
-      _signInWithEnailPassword();
-      emailAddress=emailController.text.toString();
-      phoneNumber=phoneController.text.toString();
-      age=int.parse(ageController.text.toString());
-      password=passwordController.text.toString();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration Successful!')),
-      );
+      name = nameController.text.toString();
+      emailAddress = emailController.text.toString();
+      phoneNumber = phoneController.text.toString();
+      age = int.parse(ageController.text.toString());
+      password = passwordController.text.toString();
+      _signUpWithEmailPassword();
+
       // Handle actual registration logic here
     }
   }
@@ -208,12 +184,12 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                   buildTextField(
                     label: 'Password',
-                    controller: passwordController,
+                    controller: confirmPasswordController,
                     icon: Icons.lock,
                     obscure: true,
                     validator: (value) {
                       if (value!.isEmpty) return 'Enter confirm password';
-                      if(value!=passwordController.text){
+                      if (value != passwordController.text) {
                         return "Password and confir password do not match";
                       }
                       return null;
@@ -303,21 +279,63 @@ class RegistrationScreenState extends State<RegistrationScreen> {
       ),
     );
   }
-  
-  void _signInWithEnailPassword() async{
+
+  void _signUpWithEmailPassword() async {
     try {
-      final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      print(name);
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailAddress!,
         password: password!,
       );
+      await credential.user!.updateDisplayName(name);
+      await credential.user!.reload();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registration Successful!')),
+      );
+      final newUser = FirebaseAuth.instance.currentUser;
+      print(newUser!.displayName);
+      print(newUser.email);
     } on FirebaseAuthException catch (e) {
+      String message = '';
       if (e.code == 'weak-password') {
-        
+        message = 'The password provided is too weak.';
       } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
+        message = 'The account already exists for that email.';
+      } else {
+        message = 'Authentication failed: ${e.message}';
       }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
     } catch (e) {
-      print(e);
+      const message = "An unexpected error ocurred";
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text(message)));
     }
+  }
+  Future<void> _signInWithFacebook() async{
+    final LoginResult loginResult = await FacebookAuth.instance.login();
+    final OAuthCredential credential = FacebookAuthProvider.credential(loginResult.accessToken!.tokenString);
+    UserCredential userCredential=await FirebaseAuth.instance.signInWithCredential(credential);
+    userCredential.user!.updateDisplayName(name);
+  }
+
+  Future<void> _signInWithGoogle() async {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+    // Once signed in, return the UserCredential
+    UserCredential userCredential=await FirebaseAuth.instance.signInWithCredential(credential);
+    userCredential.user!.updateDisplayName(name);
+    userCredential.user!.verifyBeforeUpdateEmail(emailAddress!);
   }
 }

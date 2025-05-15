@@ -13,13 +13,12 @@ class AuthenticateCheck extends StatefulWidget {
 class _AuthenticateCheckState extends State<AuthenticateCheck> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+    FirebaseAuth.instance.userChanges().listen((User? user) {
       if (user == null) {
-        pushReplacement(widget: const RegistrationScreen());
+        push(widget: const RegistrationScreen());
       } else {
-        pushReplacement(widget: const DailyExpenses());
+        push(widget: const DailyExpenses());
       }
     });
   }
@@ -28,7 +27,7 @@ class _AuthenticateCheckState extends State<AuthenticateCheck> {
   Widget build(BuildContext context) {
     return const Placeholder();
   }
-  pushReplacement({required Widget widget}){
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>widget));
+  push({required Widget widget}){
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>widget));
   }
 }
