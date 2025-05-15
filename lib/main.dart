@@ -1,3 +1,4 @@
+import 'package:smart_expend/pages/profile%20page.dart';
 import 'package:smart_expend/pages/signuppage.dart';
 // import 'package\:firebase\_core/firebase\_core.dart';
 
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: RegistrationScreen(),
+      home: ProfileApp(),
     );
   }
 }
