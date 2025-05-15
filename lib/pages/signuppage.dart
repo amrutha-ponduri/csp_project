@@ -1,25 +1,32 @@
 import 'package:flutter/material.dart';
-// ignore: depend_on_referenced_packages
 import 'package:image_picker/image_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'dart:io';
+// ignore: unused_import
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
 
   @override
-  _RegistrationScreenState createState() => _RegistrationScreenState();
+  RegistrationScreenState createState() => RegistrationScreenState();
 }
 
-class _RegistrationScreenState extends State<RegistrationScreen> {
+class RegistrationScreenState extends State<RegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController ageController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController=TextEditingController();
   final TextEditingController phoneController = TextEditingController();
+  String? emailAddress;
+  String? password;
+  String? name;
+  int? age;
+  String? phoneNumber;
 
   File? _image;
   bool _isPasswordVisible = false;
@@ -62,6 +69,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       // All fields are valid
+      _signInWithEnailPassword();
+      emailAddress=emailController.text.toString();
+      phoneNumber=phoneController.text.toString();
+      age=int.parse(ageController.text.toString());
+      password=passwordController.text.toString();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Registration Successful!')),
       );
@@ -91,6 +103,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             ),
             child: Form(
               key: _formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -168,6 +181,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     },
                   ),
                   buildTextField(
+                    label: 'Phone',
+                    controller: phoneController,
+                    icon: Icons.phone,
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value!.isEmpty) return 'Enter phone number';
+                      if (!RegExp(r'^\d{10}$').hasMatch(value)) {
+                        return 'Enter a 10-digit phone number';
+                      }
+                      return null;
+                    },
+                  ),
+                  buildTextField(
                     label: 'Password',
                     controller: passwordController,
                     icon: Icons.lock,
@@ -181,14 +207,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     },
                   ),
                   buildTextField(
-                    label: 'Phone',
-                    controller: phoneController,
-                    icon: Icons.phone,
-                    keyboardType: TextInputType.phone,
+                    label: 'Password',
+                    controller: passwordController,
+                    icon: Icons.lock,
+                    obscure: true,
                     validator: (value) {
-                      if (value!.isEmpty) return 'Enter phone number';
-                      if (!RegExp(r'^\d{10}$').hasMatch(value)) {
-                        return 'Enter a 10-digit phone number';
+                      if (value!.isEmpty) return 'Enter confirm password';
+                      if(value!=passwordController.text){
+                        return "Password and confir password do not match";
                       }
                       return null;
                     },
@@ -276,5 +302,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         ),
       ),
     );
+  }
+  
+  void _signInWithEnailPassword() async{
+    try {
+      final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailAddress!,
+        password: password!,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 }
