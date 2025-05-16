@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-void main() => runApp(StreakPageApp());
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class StreakPageApp extends StatelessWidget {
   @override
@@ -47,144 +46,148 @@ class _StreakPageState extends State<StreakPage> {
 
   @override
   Widget build(BuildContext context) {
-    int currentStreak = 5;
-    int consistencyScore = 82; // Show as raw score
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Streak Tracker'),
-        backgroundColor: Colors.orange,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              showCupertinoModalBottomSheet(
+                context: context,
+                builder: (context) => FractionallySizedBox(
+                  heightFactor: 0.6,
+                  child: Material(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: buildStreakContent(),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Hello Welcome Icon
-            Row(
-              children: [
-                Icon(Icons.tag_faces, color: Colors.orange, size: 28),
-                SizedBox(width: 10),
-                Text(
-                  'Hello, Welcome Back!',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
+      body: Center(child: Text('Hello')),
+    );
+  }
 
-            // Streaks Title
-            Row(
-              children: [
-                Icon(Icons.local_fire_department, color: Colors.red),
-                SizedBox(width: 6),
-                Text(
-                  'Your Streaks',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(height: 12),
+  Widget buildStreakContent() {
+    int currentStreak = 5;
+    int consistencyScore = 82;
 
-            // Streak Cards
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                streakCard(
-                  title: "Current Streak",
-                  value: "$currentStreak days",
-                  color: Colors.orange,
-                  icon: Icons.local_fire_department,
-                ),
-                streakCard(
-                  title: "Consistency Score",
-                  value: "$consistencyScore / 100",
-                  color: Colors.blue,
-                  icon: Icons.insights,
-                ),
-              ],
-            ),
-
-            SizedBox(height: 24),
-
-            // Month & Tracker Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.calendar_today,
-                        size: 20, color: Colors.blueGrey),
-                    SizedBox(width: 6),
-                    Text(
-                      'Monthly Tracker',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => _changeMonth(-1),
-                      icon: Icon(Icons.chevron_left),
-                    ),
-                    Text(
-                      DateFormat.yMMMM().format(selectedMonth),
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                    ),
-                    IconButton(
-                      onPressed: () => _changeMonth(1),
-                      icon: Icon(Icons.chevron_right),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: 8),
-
-            // Calendar Grid
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: List.generate(daysInMonth, (index) {
-                int day = index + 1;
-                bool achieved = achievedDays.contains(day);
-                return Container(
-                  width: 32,
-                  height: 32,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: achieved ? Colors.green : Colors.white,
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(6),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.tag_faces, color: Colors.orange, size: 28),
+              SizedBox(width: 10),
+              Text(
+                'Hello, Welcome Back!',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          SizedBox(height: 20),
+          Row(
+            children: [
+              Icon(Icons.local_fire_department, color: Colors.red),
+              SizedBox(width: 6),
+              Text(
+                'Your Streaks',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              streakCard(
+                title: "Current Streak",
+                value: "$currentStreak days",
+                color: Colors.orange,
+                icon: Icons.local_fire_department,
+              ),
+              streakCard(
+                title: "Consistency Score",
+                value: "$consistencyScore / 100",
+                color: Colors.blue,
+                icon: Icons.insights,
+              ),
+            ],
+          ),
+          SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.calendar_today, size: 20, color: Colors.blueGrey),
+                  SizedBox(width: 6),
+                  Text(
+                    'Monthly Tracker',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
-                  child: Text(
-                    '$day',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: achieved ? Colors.white : Colors.black,
-                    ),
+                ],
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () => _changeMonth(-1),
+                    icon: Icon(Icons.chevron_left),
                   ),
-                );
-              }),
-            ),
-
-            SizedBox(height: 16),
-
-            // Legend
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                legendItem(Colors.green, "Achieved"),
-                legendItem(Colors.white, "Missed"),
-                legendItem(Colors.blue, "Streak Freeze",
-                    isIcon: Icons.whatshot),
-              ],
-            ),
-          ],
-        ),
+                  Text(
+                    DateFormat.yMMMM().format(selectedMonth),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                  IconButton(
+                    onPressed: () => _changeMonth(1),
+                    icon: Icon(Icons.chevron_right),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: List.generate(daysInMonth, (index) {
+              int day = index + 1;
+              bool achieved = achievedDays.contains(day);
+              return Container(
+                width: 32,
+                height: 32,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: achieved ? Colors.green : Colors.white,
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '$day',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: achieved ? Colors.white : Colors.black,
+                  ),
+                ),
+              );
+            }),
+          ),
+          SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              legendItem(Colors.green, "Achieved"),
+              legendItem(Colors.white, "Missed"),
+              legendItem(Colors.blue, "Streak Freeze", isIcon: Icons.whatshot),
+            ],
+          ),
+        ],
       ),
     );
   }
