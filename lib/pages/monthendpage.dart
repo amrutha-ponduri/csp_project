@@ -134,9 +134,6 @@ class _MonthEndPageState extends State<MonthEndPage>
       ),
     );
   }
-<<<<<<< HEAD
-=======
-
   String _getMonthName(int month) {
     const months = [
       "January",
@@ -154,5 +151,4 @@ class _MonthEndPageState extends State<MonthEndPage>
     ];
     return months[month - 1];
   }
->>>>>>> origin/monthpage
 }

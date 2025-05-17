@@ -1,25 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:smart_expend/firebase_options.dart';
+import 'package:smart_expend/pages/monthendpage.dart';
+import 'package:smart_expend/pages/mothstartpage.dart';
 import 'package:smart_expend/widgets/authnticationhandler.dart';
 
 // import 'package\:smart\_expend/firebase\_options.dart';
 void main() async {
 WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
-=======
-import 'package:smart_expend/pages/signinpage.dart';
-import 'pages/monthendpage.dart';
-import 'pages/mothstartpage.dart'; // ✅ Import MonthStartPage
-
-// import 'package:smart_expend/firebase_options.dart';
-void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // if (kReleaseMode) {
-  //   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // }
->>>>>>> origin/monthpage
   runApp(const MyApp());
 }
 
@@ -34,18 +23,11 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-<<<<<<< HEAD
       home: const AuthenticateCheck(),
-=======
-      home: const SignInPage(),
->>>>>>> origin/monthpage
     );
   }
 }
 
-<<<<<<< HEAD
-
-=======
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
   final String title;
@@ -110,4 +92,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
->>>>>>> origin/monthpage
