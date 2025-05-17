@@ -1,4 +1,7 @@
+import 'package:auth_buttons/auth_buttons.dart';
 import 'package:flutter/material.dart';
+import 'package:smart_expend/helper_classes/sign_in_methods.dart';
+import 'package:smart_expend/pages/signuppage.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -12,9 +15,15 @@ class _SignInPageState extends State<SignInPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   bool isPasswordVisible = false;
-
+  late String emailAddress;
+  late String password;
   void _handleLogin() {
     if (_formKey.currentState!.validate()) {
+      emailAddress = emailController.text.toString();
+      password = passwordController.text.toString();
+      SignInHelper signInHelper = SignInHelper();
+      signInHelper.signInWithEmailAndPassword(
+          emailAddress: emailAddress, password: password, context: context);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Login successful!")),
       );
@@ -56,13 +65,14 @@ class _SignInPageState extends State<SignInPage> {
 
                 // FORM starts here
                 Form(
+                  autovalidateMode: AutovalidateMode.onUnfocus,
                   key: _formKey,
                   child: Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: Colors.black12,
                           blurRadius: 12,
@@ -153,27 +163,40 @@ class _SignInPageState extends State<SignInPage> {
                 const Text("Or login with",
                     style: TextStyle(color: Colors.black54)),
                 const SizedBox(height: 16),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _socialButton("Google", Colors.red, Icons.g_mobiledata),
-                    const SizedBox(width: 20),
-                    _socialButton("Facebook", Colors.blue, Icons.facebook),
-                  ],
+                GoogleAuthButton(
+                  onPressed: () {
+                    SignInHelper signInHelper = SignInHelper();
+                    signInHelper.signInWithGoogle();
+                  },
+                ),
+                const SizedBox(height: 10),
+                FacebookAuthButton(
+                  onPressed: () {
+                    SignInHelper signInHelper = SignInHelper();
+                    signInHelper.signInWithFacebook();
+                  },
                 ),
 
                 const SizedBox(height: 30),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text("Don't have an account? "),
-                    Text(
-                      "Sign Up",
-                      style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold),
+                  children: [
+                    const Text("Don't have an account? "),
+                    InkWell(
+                      child: const Text(
+                        "Sign Up",
+                        style: TextStyle(
+                            color: Colors.blueAccent,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const RegistrationScreen()));
+                      },
                     )
                   ],
                 ),
@@ -196,21 +219,6 @@ class _SignInPageState extends State<SignInPage> {
         borderSide: BorderSide.none,
       ),
       errorStyle: const TextStyle(color: Colors.red, fontSize: 13),
-    );
-  }
-
-  Widget _socialButton(String label, Color color, IconData icon) {
-    return ElevatedButton.icon(
-      onPressed: () {},
-      icon: Icon(icon, color: Colors.white),
-      label: Text(label, style: const TextStyle(color: Colors.white)),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
     );
   }
 }

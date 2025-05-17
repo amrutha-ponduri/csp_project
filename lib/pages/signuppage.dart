@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'dart:io';
 // ignore: unused_import
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:auth_buttons/auth_buttons.dart';
+import 'package:smart_expend/helper_classes/sign_in_methods.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -52,8 +51,8 @@ class RegistrationScreenState extends State<RegistrationScreen> {
       phoneNumber = phoneController.text.toString();
       age = int.parse(ageController.text.toString());
       password = passwordController.text.toString();
-      _signUpWithEmailPassword();
-
+      SignInHelper signInHelper=SignInHelper();
+      signInHelper.signUpWithEmailPassword(context: context,emailAddress: emailAddress,password: password);
       // Handle actual registration logic here
     }
   }
@@ -80,7 +79,7 @@ class RegistrationScreenState extends State<RegistrationScreen> {
             ),
             child: Form(
               key: _formKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
+              autovalidateMode: AutovalidateMode.onUnfocus,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -94,19 +93,6 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: TextButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context); // Go back
-                      },
-                      icon: const Icon(Icons.arrow_back),
-                      label: const Text("Back to Sign In"),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.blue[800],
-                      ),
-                    ),
-                  ),
                   const SizedBox(height: 10),
                   GestureDetector(
                     onTap: _pickImage,
@@ -196,7 +182,7 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                       return null;
                     },
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: _submitForm,
                     style: ElevatedButton.styleFrom(
@@ -209,14 +195,19 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                   const Divider(),
                   const Text("Or sign up with"),
                   const SizedBox(height: 10),
-                  FacebookAuthButton(
-                   onPressed: () {
-                     _signUpWithFacebook();
-                   },
-                  ),
                   GoogleAuthButton(
-                    onPressed: () => _signUpWithGoogle(),
-                  )
+                    onPressed: () {
+                      SignInHelper signInHelper = SignInHelper();
+                      signInHelper.signInWithGoogle();
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  FacebookAuthButton(
+                    onPressed: () {
+                      SignInHelper signInHelper = SignInHelper();
+                      signInHelper.signInWithFacebook();
+                    },
+                  ),
                 ],
               ),
             ),
@@ -268,85 +259,34 @@ class RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
-  void _signUpWithEmailPassword() async {
-    try {
-      print(name);
-      final credential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailAddress!,
-        password: password!,
-      );
-      await credential.user!.updateDisplayName(name);
-      await credential.user!.reload();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration Successful!')),
-      );
-      final newUser = FirebaseAuth.instance.currentUser;
-      print(newUser!.displayName);
-      print(newUser.email);
-    } on FirebaseAuthException catch (e) {
-      String message = '';
-      if (e.code == 'weak-password') {
-        message = 'The password provided is too weak.';
-      } else if (e.code == 'email-already-in-use') {
-        message = 'The account already exists for that email.';
-      } else {
-        message = 'Authentication failed: ${e.message}';
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
-    } catch (e) {
-      const message = "An unexpected error ocurred";
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text(message)));
-    }
-  }
-
-  Future<void> _signUpWithFacebook() async {
-    try {
-      // Trigger the Facebook sign-in flow
-      final LoginResult result = await FacebookAuth.instance.login();
-
-      if (result.status == LoginStatus.success) {
-        // Get the Facebook access token
-        final accessToken = result.accessToken!;
-        final credential =
-            FacebookAuthProvider.credential(accessToken.tokenString);
-
-        // Sign in with Firebase using the credential
-        UserCredential userCredential =
-            await FirebaseAuth.instance.signInWithCredential(credential);
-
-        // User is signed in
-        User? user = userCredential.user;
-        print("Signed in with Facebook: ${user?.displayName}");
-      } else if (result.status == LoginStatus.cancelled) {
-        print("Facebook login was cancelled by the user.");
-      } else {
-        print("Facebook login failed: ${result.message}");
-      }
-    } catch (e) {
-      print("Error during Facebook sign-in: $e");
-    }
-  }
-
-  Future<void> _signUpWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
-
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
-    // Once signed in, return the UserCredential
-    UserCredential userCredential =
-        await FirebaseAuth.instance.signInWithCredential(credential);
-    userCredential.user!.updateDisplayName(name);
-    userCredential.user!.verifyBeforeUpdateEmail(emailAddress!);
-  }
+  // void _signUpWithEmailPassword() async {
+  //   try {
+  //     final credential =
+  //         await FirebaseAuth.instance.createUserWithEmailAndPassword(
+  //       email: emailAddress!,
+  //       password: password!,
+  //     );
+  //     await credential.user!.updateDisplayName(name);
+  //     await credential.user!.reload();
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('Registration Successful!')),
+  //     );
+  //   } on FirebaseAuthException catch (e) {
+  //     String message = '';
+  //     if (e.code == 'weak-password') {
+  //       message = 'The password provided is too weak.';
+  //     } else if (e.code == 'email-already-in-use') {
+  //       message = 'The account already exists for that email.';
+  //     } else {
+  //       message = 'Authentication failed: ${e.message}';
+  //     }
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text(message)),
+  //     );
+  //   } catch (e) {
+  //     const message = "An unexpected error ocurred";
+  //     ScaffoldMessenger.of(context)
+  //         .showSnackBar(const SnackBar(content: Text(message)));
+  //   }
+  // }
 }

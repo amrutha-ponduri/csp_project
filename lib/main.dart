@@ -1,14 +1,19 @@
+// ignore_for_file: unused_import
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_expend/firebase_options.dart';
 import 'package:smart_expend/pages/monthendpage.dart';
 import 'package:smart_expend/pages/mothstartpage.dart';
-import 'package:smart_expend/widgets/authnticationhandler.dart';
+import 'package:smart_expend/pages/signinpage.dart';
+import 'package:smart_expend/widgets/authenticationhandler.dart';
 
 // import 'package\:smart\_expend/firebase\_options.dart';
 void main() async {
-WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 

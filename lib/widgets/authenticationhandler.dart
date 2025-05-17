@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smart_expend/pages/dailyexpensespage.dart';
-import 'package:smart_expend/pages/signuppage.dart';
+import 'package:smart_expend/pages/signinpage.dart';
 
 class AuthenticateCheck extends StatefulWidget {
   const AuthenticateCheck({super.key});
@@ -14,20 +14,20 @@ class _AuthenticateCheckState extends State<AuthenticateCheck> {
   @override
   void initState() {
     super.initState();
-    FirebaseAuth.instance.userChanges().listen((User? user) {
-      if (user == null) {
-        push(widget: const RegistrationScreen());
-      } else {
-        push(widget: const DailyExpenses());
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
-  }
-  push({required Widget widget}){
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>widget));
+    return StreamBuilder<User?>(stream: FirebaseAuth.instance.authStateChanges(),
+    builder: (context, snapshot) {
+      if(snapshot.connectionState==ConnectionState.waiting){
+        return const Center(child: CircularProgressIndicator(),);
+      }
+      if(snapshot.hasData){
+        return const DailyExpenses();
+      }
+      return const SignInPage();
+    },
+    );
   }
 }
