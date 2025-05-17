@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -350,3 +351,6 @@ class RegistrationScreenState extends State<RegistrationScreen> {
     userCredential.user!.verifyBeforeUpdateEmail(emailAddress!);
   }
 }
+=======
+
+>>>>>>> origin/monthpage
