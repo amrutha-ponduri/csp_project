@@ -5,6 +5,7 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'dart:io';
 // ignore: unused_import
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:auth_buttons/auth_buttons.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -195,7 +196,7 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: _submitForm,
                     style: ElevatedButton.styleFrom(
@@ -208,27 +209,14 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                   const Divider(),
                   const Text("Or sign up with"),
                   const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: _signInWithGoogle,
-                        icon: const Icon(Icons.account_circle),
-                        label: const Text("Google"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.redAccent,
-                        ),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: _signInWithFacebook,
-                        icon: const Icon(Icons.facebook),
-                        label: const Text("Facebook"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[800],
-                        ),
-                      ),
-                    ],
+                  FacebookAuthButton(
+                   onPressed: () {
+                     _signUpWithFacebook();
+                   },
                   ),
+                  GoogleAuthButton(
+                    onPressed: () => _signUpWithGoogle(),
+                  )
                 ],
               ),
             ),
@@ -314,14 +302,36 @@ class RegistrationScreenState extends State<RegistrationScreen> {
           .showSnackBar(const SnackBar(content: Text(message)));
     }
   }
-  Future<void> _signInWithFacebook() async{
-    final LoginResult loginResult = await FacebookAuth.instance.login();
-    final OAuthCredential credential = FacebookAuthProvider.credential(loginResult.accessToken!.tokenString);
-    UserCredential userCredential=await FirebaseAuth.instance.signInWithCredential(credential);
-    userCredential.user!.updateDisplayName(name);
+
+  Future<void> _signUpWithFacebook() async {
+    try {
+      // Trigger the Facebook sign-in flow
+      final LoginResult result = await FacebookAuth.instance.login();
+
+      if (result.status == LoginStatus.success) {
+        // Get the Facebook access token
+        final accessToken = result.accessToken!;
+        final credential =
+            FacebookAuthProvider.credential(accessToken.tokenString);
+
+        // Sign in with Firebase using the credential
+        UserCredential userCredential =
+            await FirebaseAuth.instance.signInWithCredential(credential);
+
+        // User is signed in
+        User? user = userCredential.user;
+        print("Signed in with Facebook: ${user?.displayName}");
+      } else if (result.status == LoginStatus.cancelled) {
+        print("Facebook login was cancelled by the user.");
+      } else {
+        print("Facebook login failed: ${result.message}");
+      }
+    } catch (e) {
+      print("Error during Facebook sign-in: $e");
+    }
   }
 
-  Future<void> _signInWithGoogle() async {
+  Future<void> _signUpWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
     // Obtain the auth details from the request
@@ -334,7 +344,8 @@ class RegistrationScreenState extends State<RegistrationScreen> {
       idToken: googleAuth?.idToken,
     );
     // Once signed in, return the UserCredential
-    UserCredential userCredential=await FirebaseAuth.instance.signInWithCredential(credential);
+    UserCredential userCredential =
+        await FirebaseAuth.instance.signInWithCredential(credential);
     userCredential.user!.updateDisplayName(name);
     userCredential.user!.verifyBeforeUpdateEmail(emailAddress!);
   }
