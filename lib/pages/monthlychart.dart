@@ -1,127 +1,173 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class YearlyChartPage extends StatelessWidget {
-  YearlyChartPage({Key? key}) : super(key: key);
+  final List<String> months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
+  ];
 
-  List<String> getMonthsOfCurrentYear() {
-    return List.generate(12, (index) {
-      final date = DateTime(DateTime.now().year, index + 1, 1);
-      return DateFormat('MMM').format(date);
-    });
-  }
+  final List<double> savedAmounts = [
+    500,
+    700,
+    800,
+    600,
+    750,
+    900,
+    850,
+    700,
+    650,
+    800,
+    900,
+    1000,
+  ];
 
-  List<List<double>> generateDummyData() {
-    return [
-      [800, 400],
-      [600, 500],
-      [750, 300],
-      [500, 700],
-      [1000, 100],
-      [450, 600],
-      [700, 400],
-      [850, 350],
-      [300, 800],
-      [950, 200],
-      [400, 600],
-      [650, 500],
-    ];
-  }
+  final List<double> spentAmounts = [
+    400,
+    550,
+    600,
+    700,
+    650,
+    700,
+    750,
+    650,
+    600,
+    700,
+    800,
+    850,
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final months = getMonthsOfCurrentYear();
-    final monthlyData = generateDummyData();
-
     return Scaffold(
-      appBar: AppBar(title: const Text("Yearly Expense Chart")),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          width: 800,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
+      appBar: AppBar(
+        title: Text('Yearly Saved & Spent'),
+        centerTitle: true,
+        backgroundColor: Color(0xFF0099FF),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Container(
+            width: 1000,
             child: BarChart(
               BarChartData(
-                maxY: monthlyData
-                        .map((e) => e[0] + e[1])
-                        .reduce((a, b) => a > b ? a : b) +
-                    200,
-                barTouchData: BarTouchData(
-                  enabled: true,
-                  touchTooltipData: BarTouchTooltipData(
-                    tooltipBgColor: Colors.white,
-                    tooltipPadding: const EdgeInsets.all(8),
-                    tooltipRoundedRadius: 8,
-                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                      final saved = monthlyData[group.x.toInt()][0];
-                      final spent = monthlyData[group.x.toInt()][1];
-                      return BarTooltipItem(
-                        '${months[group.x.toInt()]}\n'
-                        'Saved: ₹${saved.toInt()}\n'
-                        'Spent: ₹${spent.toInt()}',
-                        const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                maxY: 1450,
+                barGroups: List.generate(months.length, (i) {
+                  return BarChartGroupData(
+                    x: i,
+                    barsSpace: 8,
+                    barRods: [
+                      BarChartRodData(
+                        toY: savedAmounts[i],
+                        color: Color(0xFF0099FF),
+                        width: 12, // ✅ Restored original width
+                        borderRadius: BorderRadius.circular(4),
+                        backDrawRodData: BackgroundBarChartRodData(
+                          show: true,
+                          toY: 1400,
+                          color: Color(0xFFE0F2FF),
                         ),
-                      );
-                    },
-                  ),
-                ),
+                      ),
+                      BarChartRodData(
+                        toY: spentAmounts[i],
+                        color: Color(0xFFFF4444),
+                        width: 12, // ✅ Restored original width
+                        borderRadius: BorderRadius.circular(4),
+                        backDrawRodData: BackgroundBarChartRodData(
+                          show: true,
+                          toY: 1400,
+                          color: Color(0xFFFFE0E0),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+                groupsSpace: 24,
                 titlesData: FlTitlesData(
+                  show: true,
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
+                      reservedSize: 32,
                       getTitlesWidget: (value, meta) {
-                        final int index = value.toInt();
-                        if (index < 0 || index >= months.length)
-                          return const SizedBox();
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(months[index],
-                              style: const TextStyle(fontSize: 12)),
+                        if (value.toInt() >= months.length) return Container();
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          child: Text(
+                            months[value.toInt()],
+                            style: TextStyle(
+                              color: Color(0xFF0099FF),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
                         );
                       },
-                      reservedSize: 32,
                     ),
                   ),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
+                      reservedSize: 40,
                       interval: 200,
                       getTitlesWidget: (value, meta) {
-                        return Text(value.toInt().toString());
+                        if (value % 200 != 0 && value != 0) return Container();
+                        return Text(
+                          value.toInt().toString(),
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 11,
+                          ),
+                        );
                       },
-                      reservedSize: 36,
                     ),
                   ),
-                  topTitles:
-                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  rightTitles:
-                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: false,
+                      reservedSize: 20,
+                    ),
+                  ),
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                ),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: 200,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: Colors.grey.withOpacity(0.2),
+                    strokeWidth: 1,
+                    dashArray: [5, 5],
+                  ),
                 ),
                 borderData: FlBorderData(show: false),
-                gridData: FlGridData(show: true),
-                barGroups: List.generate(monthlyData.length, (index) {
-                  final saved = monthlyData[index][0];
-                  final spent = monthlyData[index][1];
-                  return BarChartGroupData(
-                    x: index,
-                    barRods: [
-                      BarChartRodData(
-                        toY: saved + spent,
-                        width: 20,
-                        rodStackItems: [
-                          BarChartRodStackItem(0, spent, Colors.red),
-                          BarChartRodStackItem(
-                              spent, saved + spent, Colors.green),
-                        ],
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ],
-                  );
-                }),
+                barTouchData: BarTouchData(
+                  enabled: true,
+                  touchTooltipData: BarTouchTooltipData(
+                    tooltipBgColor: Colors.black87,
+                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                      String label = rodIndex == 0 ? "Saved" : "Spent";
+                      return BarTooltipItem(
+                        '$label\n${rod.toY.toInt()}',
+                        TextStyle(color: Colors.white),
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
           ),

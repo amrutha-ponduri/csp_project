@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:smart_expend/pages/monthlychart.dart';
 import 'package:smart_expend/pages/signinpage.dart';
+import 'package:smart_expend/widget/delete.dart';
 import 'pages/monthendpage.dart';
 import 'pages/mothstartpage.dart'; // ✅ Import MonthStartPage
 import 'pages/dailychart.dart';
@@ -28,6 +29,17 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: YearlyChartPage(),
+    );
+  }
+}
+
+class MyWidgetPage extends StatelessWidget {
+  const MyWidgetPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: const AddButton(),
     );
   }
 }
