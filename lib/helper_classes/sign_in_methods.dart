@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
@@ -23,12 +24,27 @@ class SignInHelper {
   }
 
   void signUpWithEmailPassword(
-      {required emailAddress, required password, required context}) async {
+      {required emailAddress,
+      required password,
+      required context,
+      required name,
+      required age,
+      required phoneNumber}) async {
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailAddress!,
         password: password!,
       );
+      final db = FirebaseFirestore.instance;
+      DocumentReference docReference =
+          db.collection("users").doc(FirebaseAuth.instance.currentUser!.email);
+      docReference.collection("userDetails").add(<String, dynamic>{
+        'name': name,
+        'age': age,
+        'emailAddress': emailAddress,
+        'phoneNumber': phoneNumber,
+      });
+      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       String message = '';
       if (e.code == 'weak-password') {
@@ -51,9 +67,8 @@ class SignInHelper {
   void signInWithEmailAndPassword(
       {required emailAddress, required password, required context}) async {
     try {
-      await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-              email: emailAddress!, password: password!);
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailAddress!, password: password!);
     } on FirebaseException catch (e) {
       String message = "";
       if (e.code == 'user_not_found') {

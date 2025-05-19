@@ -51,8 +51,14 @@ class RegistrationScreenState extends State<RegistrationScreen> {
       phoneNumber = phoneController.text.toString();
       age = int.parse(ageController.text.toString());
       password = passwordController.text.toString();
-      SignInHelper signInHelper=SignInHelper();
-      signInHelper.signUpWithEmailPassword(context: context,emailAddress: emailAddress,password: password);
+      SignInHelper signInHelper = SignInHelper();
+      signInHelper.signUpWithEmailPassword(
+          context: context,
+          emailAddress: emailAddress,
+          password: password,
+          name: name,
+          age: age,
+          phoneNumber: phoneNumber);
       // Handle actual registration logic here
     }
   }
@@ -195,18 +201,22 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                   const Divider(),
                   const Text("Or sign up with"),
                   const SizedBox(height: 10),
-                  GoogleAuthButton(
-                    onPressed: () {
-                      SignInHelper signInHelper = SignInHelper();
-                      signInHelper.signInWithGoogle();
-                    },
+                  IntrinsicWidth(
+                    child: GoogleAuthButton(
+                      onPressed: () {
+                        SignInHelper signInHelper = SignInHelper();
+                        signInHelper.signInWithGoogle();
+                      },
+                    ),
                   ),
                   const SizedBox(height: 10),
-                  FacebookAuthButton(
-                    onPressed: () {
-                      SignInHelper signInHelper = SignInHelper();
-                      signInHelper.signInWithFacebook();
-                    },
+                  IntrinsicWidth(
+                    child: FacebookAuthButton(
+                      onPressed: () {
+                        SignInHelper signInHelper = SignInHelper();
+                        signInHelper.signInWithFacebook();
+                      },
+                    ),
                   ),
                 ],
               ),

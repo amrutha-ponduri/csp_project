@@ -1,10 +1,12 @@
 // ignore_for_file: unused_import
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_popup/flutter_popup.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:clay_containers/clay_containers.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:smart_expend/helper_classes/delete_helper.dart';
 import 'package:smart_expend/loading_data/expensemodel.dart';
 import 'package:smart_expend/loading_data/get_data.dart';
 import 'package:smart_expend/widgets/addexpense_modal.dart';
@@ -21,11 +23,20 @@ class _DailyExpensesState extends State<DailyExpenses> {
   var db = FirebaseFirestore.instance;
   @override
   Widget build(BuildContext context) {
+    BatchDelete batchDelete=BatchDelete();
+    batchDelete.batchDelete();
     DateTime startDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
     Timestamp startTimeStamp = Timestamp.fromDate(startDate);
+    User? user=FirebaseAuth.instance.currentUser;
+    String? emailAddress=user!.email;
     return Scaffold(
       appBar: AppBar(
-        actions: const [],
+        actions: [
+          IconButton(onPressed: () async{
+            await FirebaseAuth.instance.signOut();
+          }, icon: Icon(Icons.logout,color: Color.fromARGB(255, 11, 53, 88),))
+
+        ],
         backgroundColor: const Color.fromARGB(255, 180, 200, 234),
         title: const Text("Daily Expenses"),
         centerTitle: true,
@@ -33,7 +44,7 @@ class _DailyExpensesState extends State<DailyExpenses> {
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('users')
-            .doc('user1')
+            .doc(emailAddress)
             .collection('dailyExpenses')
             .where('timeStamp', isGreaterThanOrEqualTo: startTimeStamp)
             .orderBy('timeStamp', descending: true)

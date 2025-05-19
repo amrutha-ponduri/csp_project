@@ -1,5 +1,6 @@
 // ignore_for_file: unused_import
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -112,7 +113,7 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
                           var userReference =
-                              db.collection("users").doc("user1");
+                              db.collection("users").doc(FirebaseAuth.instance.currentUser!.email);
                           userReference
                               .collection("dailyExpenses")
                               .add(<String, dynamic>{
