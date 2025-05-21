@@ -7,7 +7,6 @@ import 'package:smart_expend/pages/monthendpage.dart';
 import 'package:smart_expend/pages/mothstartpage.dart';
 import 'package:smart_expend/pages/signinpage.dart';
 import 'package:smart_expend/widgets/authenticationhandler.dart';
-
 // import 'package\:smart\_expend/firebase\_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +31,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
   final String title;

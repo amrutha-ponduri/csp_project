@@ -201,22 +201,18 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                   const Divider(),
                   const Text("Or sign up with"),
                   const SizedBox(height: 10),
-                  IntrinsicWidth(
-                    child: GoogleAuthButton(
-                      onPressed: () {
-                        SignInHelper signInHelper = SignInHelper();
-                        signInHelper.signInWithGoogle();
-                      },
-                    ),
+                  GoogleAuthButton(
+                    onPressed: () {
+                      SignInHelper signInHelper = SignInHelper();
+                      signInHelper.signInWithGoogle();
+                    },
                   ),
                   const SizedBox(height: 10),
-                  IntrinsicWidth(
-                    child: FacebookAuthButton(
-                      onPressed: () {
-                        SignInHelper signInHelper = SignInHelper();
-                        signInHelper.signInWithFacebook();
-                      },
-                    ),
+                  FacebookAuthButton(
+                    onPressed: () {
+                      SignInHelper signInHelper = SignInHelper();
+                      signInHelper.signInWithFacebook();
+                    },
                   ),
                 ],
               ),
