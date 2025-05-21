@@ -38,7 +38,7 @@ class SignInHelper {
       final db = FirebaseFirestore.instance;
       DocumentReference docReference =
           db.collection("users").doc(FirebaseAuth.instance.currentUser!.email);
-      docReference.collection("userDetails").add(<String, dynamic>{
+      docReference.collection("userDetails").doc('details').set(<String, dynamic>{
         'name': name,
         'age': age,
         'emailAddress': emailAddress,

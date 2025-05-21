@@ -1,58 +1,56 @@
+// ignore_for_file: unused_import
+
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-void main() {
-  runApp(ProfileApp());
-}
-
-class ProfileApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Profile Page',
-      theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
-        scaffoldBackgroundColor: Color(0xFFF5F5F5),
-      ),
-      home: ProfilePage(),
-    );
-  }
-}
-
 class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  ProfilePageState createState() => ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  String _name = "John Doe";
-  String _email = "john@example.com";
-  String _phone = "1234567890";
-
+class ProfilePageState extends State<ProfilePage> {
+  String _name = "Enter your name";
+  String _email = "Enter your email";
+  String _phone = "Phone number please";
+  int _age = 0;
   bool _isEditingName = false;
   final _nameController = TextEditingController();
-
-  File? _imageFile;
-  final ImagePicker _picker = ImagePicker();
+  late Future<Map<String,dynamic>?> getData;
+  // File? _imageFile;
+  // final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    _nameController.text = _name;
+    getData=getUserData();
   }
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-    }
-  }
+  // Future<void> _pickImage() async {
+  //   final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  //   if (pickedFile != null) {
+  //     setState(() {
+  //       _imageFile = File(pickedFile.path);
+  //     });
+  //   }
+  // }
 
   void _saveName() {
     if (_nameController.text.isNotEmpty) {
+      final db=FirebaseFirestore.instance;
+      final DocumentReference documentReference=db.collection('users').doc(_email).collection('userDetails').doc('details');
+      documentReference.set(<String,dynamic>{
+        'name': _nameController.text.toString(),
+        'emailAddress': _email,
+        'phoneNumber': _phone,
+        'age': _age,
+      });
+      getData=getUserData();
       setState(() {
         _name = _nameController.text;
         _isEditingName = false;
@@ -62,9 +60,29 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     }
   }
-
+  
   @override
   Widget build(BuildContext context) {
+    Map<String,dynamic>? userDetails;
+    return FutureBuilder(future: getData, builder: (context,snapshot){
+      if(snapshot.connectionState==ConnectionState.waiting){
+        return Center(child: CircularProgressIndicator(),);
+      }
+      if(snapshot.hasData){
+        userDetails=snapshot.data;
+      }
+    
+    if(userDetails==null){
+      _name='Not specified';
+      _email='Not specified';
+      _phone='Not specified';
+    }
+    else{
+      _name=userDetails!['name'];
+      _email=userDetails!['emailAddress'];
+      _phone=userDetails!['phoneNumber'];
+      _age=userDetails!['age'];
+    }
     return Scaffold(
       body: Column(
         children: [
@@ -84,27 +102,27 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             child: Column(
               children: [
-                GestureDetector(
-                  onTap: _pickImage,
-                  child: CircleAvatar(
-                    radius: 60,
-                    backgroundImage: _imageFile != null
-                        ? FileImage(_imageFile!)
-                        : AssetImage('assets/profile.png') as ImageProvider,
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius: 18,
-                        child: Icon(
-                          Icons.camera_alt,
-                          color: Colors.deepPurple,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                // GestureDetector(
+                //   onTap: _pickImage,
+                //   child: CircleAvatar(
+                //     radius: 60,
+                //     backgroundImage: _imageFile != null
+                //         ? FileImage(_imageFile!)
+                //         : AssetImage('assets/profile.png') as ImageProvider,
+                //     child: Align(
+                //       alignment: Alignment.bottomRight,
+                //       child: CircleAvatar(
+                //         backgroundColor: Colors.white,
+                //         radius: 18,
+                //         child: Icon(
+                //           Icons.camera_alt,
+                //           color: Colors.deepPurple,
+                //           size: 20,
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 SizedBox(height: 10),
                 _isEditingName
                     ? Padding(
@@ -145,6 +163,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           IconButton(
                             icon: Icon(Icons.edit, color: Colors.white),
                             onPressed: () {
+                              _nameController.text=_name;
                               setState(() {
                                 _isEditingName = true;
                               });
@@ -180,7 +199,18 @@ class _ProfilePageState extends State<ProfilePage> {
         ],
       ),
     );
+    });
   }
+}
+
+Future<Map<String, dynamic>?> getUserData() async{
+  Map<String,dynamic>? userDetails;
+  final db=FirebaseFirestore.instance;
+  DocumentReference documentReference=db.collection('users').doc(FirebaseAuth.instance.currentUser!.email).collection('userDetails').doc('details');
+  await documentReference.get().then((DocumentSnapshot doc){
+    userDetails=doc.data() as Map<String,dynamic>;
+  });
+  return userDetails;
 }
 
 // Custom Widget for Profile Information
@@ -189,7 +219,7 @@ class ProfileInfoCard extends StatelessWidget {
   final String value;
   final IconData icon;
 
-  const ProfileInfoCard({
+  const ProfileInfoCard({super.key, 
     required this.title,
     required this.value,
     required this.icon,

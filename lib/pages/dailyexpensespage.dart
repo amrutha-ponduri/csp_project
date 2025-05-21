@@ -9,6 +9,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:smart_expend/helper_classes/delete_helper.dart';
 import 'package:smart_expend/loading_data/expensemodel.dart';
 import 'package:smart_expend/loading_data/get_data.dart';
+import 'package:smart_expend/pages/profile_page.dart';
 import 'package:smart_expend/widgets/addexpense_modal.dart';
 import 'package:smart_expend/widgets/snackbarwidget.dart';
 
@@ -34,7 +35,10 @@ class _DailyExpensesState extends State<DailyExpenses> {
         actions: [
           IconButton(onPressed: () async{
             await FirebaseAuth.instance.signOut();
-          }, icon: Icon(Icons.logout,color: Color.fromARGB(255, 11, 53, 88),))
+          }, icon: Icon(Icons.logout,color: Color.fromARGB(255, 11, 53, 88),)),
+          IconButton(onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(),));
+          }, icon: Icon(Icons.person_outlined))
 
         ],
         backgroundColor: const Color.fromARGB(255, 180, 200, 234),
