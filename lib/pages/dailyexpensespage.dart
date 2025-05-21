@@ -12,7 +12,7 @@ import 'package:smart_expend/loading_data/get_data.dart';
 import 'package:smart_expend/pages/profile_page.dart';
 import 'package:smart_expend/widgets/addexpense_modal.dart';
 import 'package:smart_expend/widgets/snackbarwidget.dart';
-
+import 'package:top_modal_sheet/top_modal_sheet.dart';
 class DailyExpenses extends StatefulWidget {
   const DailyExpenses({super.key});
 
@@ -37,7 +37,8 @@ class _DailyExpensesState extends State<DailyExpenses> {
             await FirebaseAuth.instance.signOut();
           }, icon: Icon(Icons.logout,color: Color.fromARGB(255, 11, 53, 88),)),
           IconButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(),));
+            showTopModalSheet(context, ProfilePage());
+            //Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(),));
           }, icon: Icon(Icons.person_outlined))
 
         ],

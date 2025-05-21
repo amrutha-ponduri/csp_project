@@ -83,120 +83,126 @@ class ProfilePageState extends State<ProfilePage> {
       _phone=userDetails!['phoneNumber'];
       _age=userDetails!['age'];
     }
-    return Scaffold(
-      body: Column(
-        children: [
-          // Header with Gradient
-          Container(
-            padding: EdgeInsets.only(top: 60, bottom: 30),
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.deepPurple, Colors.deepPurpleAccent],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(30),
-              ),
-            ),
-            child: Column(
-              children: [
-                // GestureDetector(
-                //   onTap: _pickImage,
-                //   child: CircleAvatar(
-                //     radius: 60,
-                //     backgroundImage: _imageFile != null
-                //         ? FileImage(_imageFile!)
-                //         : AssetImage('assets/profile.png') as ImageProvider,
-                //     child: Align(
-                //       alignment: Alignment.bottomRight,
-                //       child: CircleAvatar(
-                //         backgroundColor: Colors.white,
-                //         radius: 18,
-                //         child: Icon(
-                //           Icons.camera_alt,
-                //           color: Colors.deepPurple,
-                //           size: 20,
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                SizedBox(height: 10),
-                _isEditingName
-                    ? Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _nameController,
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  labelText: 'Full Name',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+    return  Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        height: null,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          color: const Color.fromARGB(255, 213, 195, 244),
+        ),
+        child: Column(
+            children: [
+              // Header with Gradient
+              Container(
+                padding: EdgeInsets.only(top: 60, bottom: 30),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.deepPurple, Colors.deepPurpleAccent],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(30),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    // GestureDetector(
+                    //   onTap: _pickImage,
+                    //   child: CircleAvatar(
+                    //     radius: 60,
+                    //     backgroundImage: _imageFile != null
+                    //         ? FileImage(_imageFile!)
+                    //         : AssetImage('assets/profile.png') as ImageProvider,
+                    //     child: Align(
+                    //       alignment: Alignment.bottomRight,
+                    //       child: CircleAvatar(
+                    //         backgroundColor: Colors.white,
+                    //         radius: 18,
+                    //         child: Icon(
+                    //           Icons.camera_alt,
+                    //           color: Colors.deepPurple,
+                    //           size: 20,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                    SizedBox(height: 10),
+                    _isEditingName
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 40),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _nameController,
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      labelText: 'Full Name',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
                                   ),
                                 ),
+                                IconButton(
+                                  icon: Icon(Icons.check, color: Colors.white),
+                                  onPressed: _saveName,
+                                ),
+                              ],
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                _name,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.check, color: Colors.white),
-                              onPressed: _saveName,
-                            ),
-                          ],
-                        ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _name,
-                            style: TextStyle(
-                              fontSize: 22,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
+                              IconButton(
+                                icon: Icon(Icons.edit, color: Colors.white),
+                                onPressed: () {
+                                  _nameController.text=_name;
+                                  setState(() {
+                                    _isEditingName = true;
+                                  });
+                                },
+                              ),
+                            ],
                           ),
-                          IconButton(
-                            icon: Icon(Icons.edit, color: Colors.white),
-                            onPressed: () {
-                              _nameController.text=_name;
-                              setState(() {
-                                _isEditingName = true;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-              ],
-            ),
-          ),
-
-          // Profile Details Section
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ListView(
-                children: [
-                  ProfileInfoCard(
-                    title: 'Email',
-                    value: _email,
-                    icon: Icons.email,
-                  ),
-                  SizedBox(height: 10),
-                  ProfileInfoCard(
-                    title: 'Phone Number',
-                    value: _phone,
-                    icon: Icons.phone,
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+          
+              // Profile Details Section
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    ProfileInfoCard(
+                      title: 'Email',
+                      value: _email,
+                      icon: Icons.email,
+                    ),
+                    SizedBox(height: 10),
+                    ProfileInfoCard(
+                      title: 'Phone Number',
+                      value: _phone,
+                      icon: Icons.phone,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
       ),
     );
     });

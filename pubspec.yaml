@@ -48,6 +48,7 @@ dependencies:
   flutter_login_facebook: ^2.0.1
   clay_containers: ^0.3.4
   google_sign_in: ^6.2.2
+  top_modal_sheet: ^2.1.0
 
 dev_dependencies:
   flutter_test:
