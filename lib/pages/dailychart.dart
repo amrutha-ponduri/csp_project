@@ -10,7 +10,7 @@ import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 
 class DailyExpenseChart extends StatefulWidget {
-  const DailyExpenseChart({Key? key}) : super(key: key);
+  const DailyExpenseChart({super.key});
 
   @override
   State<DailyExpenseChart> createState() => _DailyExpenseChartState();
