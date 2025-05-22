@@ -24,12 +24,14 @@ class _MonthStartPageState extends State<MonthStartPage> {
       final pocketMoney = double.parse(pocketMoneyController.text);
       final targetSavings = double.parse(targetSavingsController.text);
 
+
       // You can do something with the values here
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
                 'Pocket Money: ₹$pocketMoney | Target Savings: ₹$targetSavings')),
       );
+      Navigator.pop(context);
     }
   }
 

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smart_expend/pages/dailyexpensespage.dart';
+import 'package:smart_expend/pages/mothstartpage.dart';
 import 'package:smart_expend/pages/signinpage.dart';
 import 'package:smart_expend/pages/targetpage.dart';
 
@@ -28,6 +29,9 @@ class _AuthenticateCheckState extends State<AuthenticateCheck> {
         return const Center(child: CircularProgressIndicator(),);
       }
       if(snapshot.hasData){
+        if(DateTime.now().day==1){
+          return MonthStartPage();
+        }
         return const DailyExpenses();
       }
       return const SignInPage();
