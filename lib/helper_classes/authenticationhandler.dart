@@ -1,7 +1,11 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smart_expend/pages/dailyexpensespage.dart';
 import 'package:smart_expend/pages/signinpage.dart';
+import 'package:smart_expend/pages/targetpage.dart';
+
 
 class AuthenticateCheck extends StatefulWidget {
   const AuthenticateCheck({super.key});

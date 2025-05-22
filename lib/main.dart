@@ -6,7 +6,8 @@ import 'package:smart_expend/firebase_options.dart';
 import 'package:smart_expend/pages/monthendpage.dart';
 import 'package:smart_expend/pages/mothstartpage.dart';
 import 'package:smart_expend/pages/signinpage.dart';
-import 'package:smart_expend/widgets/authenticationhandler.dart';
+import 'package:smart_expend/helper_classes/authenticationhandler.dart';
+import 'package:smart_expend/pages/targetpage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const AuthenticateCheck(),
+      home: const TargetPage(),
     );
   }
 }
