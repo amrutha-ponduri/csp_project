@@ -27,20 +27,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyWidgetPage(),
-    );
-  }
-}
-
-class MyWidgetPage extends StatelessWidget {
-  const MyWidgetPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: ProfilePictureWidget(
-        onCameraTap: () {},
-      ),
+      home: TrackerPage(),
     );
   }
 }
