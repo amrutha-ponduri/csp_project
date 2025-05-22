@@ -37,7 +37,7 @@ class _DailyExpensesState extends State<DailyExpenses> {
             await FirebaseAuth.instance.signOut();
           }, icon: Icon(Icons.logout,color: Color.fromARGB(255, 11, 53, 88),)),
           IconButton(onPressed: (){
-            showTopModalSheet(context, ProfilePage());
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfilePage()));
             //Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(),));
           }, icon: Icon(Icons.person_outlined))
 

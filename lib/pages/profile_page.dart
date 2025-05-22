@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
+import 'package:smart_expend/pages/dailychart.dart';
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
   @override
@@ -21,14 +23,14 @@ class ProfilePageState extends State<ProfilePage> {
   int _age = 0;
   bool _isEditingName = false;
   final _nameController = TextEditingController();
-  late Future<Map<String,dynamic>?> getData;
+  late Future<Map<String, dynamic>?> getData;
   // File? _imageFile;
   // final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    getData=getUserData();
+    getData = getUserData();
   }
 
   // Future<void> _pickImage() async {
@@ -42,15 +44,19 @@ class ProfilePageState extends State<ProfilePage> {
 
   void _saveName() {
     if (_nameController.text.isNotEmpty) {
-      final db=FirebaseFirestore.instance;
-      final DocumentReference documentReference=db.collection('users').doc(_email).collection('userDetails').doc('details');
-      documentReference.set(<String,dynamic>{
+      final db = FirebaseFirestore.instance;
+      final DocumentReference documentReference = db
+          .collection('users')
+          .doc(_email)
+          .collection('userDetails')
+          .doc('details');
+      documentReference.set(<String, dynamic>{
         'name': _nameController.text.toString(),
         'emailAddress': _email,
         'phoneNumber': _phone,
         'age': _age,
       });
-      getData=getUserData();
+      getData = getUserData();
       setState(() {
         _name = _nameController.text;
         _isEditingName = false;
@@ -60,161 +66,135 @@ class ProfilePageState extends State<ProfilePage> {
       );
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    Map<String,dynamic>? userDetails;
-    return FutureBuilder(future: getData, builder: (context,snapshot){
-      if(snapshot.connectionState==ConnectionState.waiting){
-        return Center(child: CircularProgressIndicator(),);
-      }
-      if(snapshot.hasData){
-        userDetails=snapshot.data;
-      }
-    
-    if(userDetails==null){
-      _name='Not specified';
-      _email='Not specified';
-      _phone='Not specified';
-    }
-    else{
-      _name=userDetails!['name'];
-      _email=userDetails!['emailAddress'];
-      _phone=userDetails!['phoneNumber'];
-      _age=userDetails!['age'];
-    }
-    return  Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        height: null,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          color: const Color.fromARGB(255, 213, 195, 244),
-        ),
-        child: Column(
-            children: [
-              // Header with Gradient
-              Container(
-                padding: EdgeInsets.only(top: 60, bottom: 30),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.deepPurple, Colors.deepPurpleAccent],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(30),
+    Map<String, dynamic>? userDetails;
+    return Scaffold(
+      body: FutureBuilder(
+          future: getData,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (snapshot.hasData) {
+              userDetails = snapshot.data;
+            }
+
+            if (userDetails == null) {
+              _name = 'Not specified';
+              _email = 'Not specified';
+              _phone = 'Not specified';
+            } else {
+              _name = userDetails!['name'];
+              _email = userDetails!['emailAddress'];
+              _phone = userDetails!['phoneNumber'];
+              _age = userDetails!['age'];
+            }
+            return ListView(
+              children: [
+                // Header with Gradient
+                Container(
+                  padding: EdgeInsets.only(top: 60, bottom: 30),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.deepPurple, Colors.deepPurpleAccent],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(30),
+                    ),
                   ),
                 ),
-                child: Column(
-                  children: [
-                    // GestureDetector(
-                    //   onTap: _pickImage,
-                    //   child: CircleAvatar(
-                    //     radius: 60,
-                    //     backgroundImage: _imageFile != null
-                    //         ? FileImage(_imageFile!)
-                    //         : AssetImage('assets/profile.png') as ImageProvider,
-                    //     child: Align(
-                    //       alignment: Alignment.bottomRight,
-                    //       child: CircleAvatar(
-                    //         backgroundColor: Colors.white,
-                    //         radius: 18,
-                    //         child: Icon(
-                    //           Icons.camera_alt,
-                    //           color: Colors.deepPurple,
-                    //           size: 20,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                    SizedBox(height: 10),
-                    _isEditingName
-                        ? Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 40),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: _nameController,
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      labelText: 'Full Name',
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
+                SizedBox(height: 10),
+                _isEditingName
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _nameController,
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  labelText: 'Full Name',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                IconButton(
-                                  icon: Icon(Icons.check, color: Colors.white),
-                                  onPressed: _saveName,
-                                ),
-                              ],
+                              ),
                             ),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                _name,
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.edit, color: Colors.white),
-                                onPressed: () {
-                                  _nameController.text=_name;
-                                  setState(() {
-                                    _isEditingName = true;
-                                  });
-                                },
-                              ),
-                            ],
+                            IconButton(
+                              icon: Icon(Icons.check, color: Colors.white),
+                              onPressed: _saveName,
+                            ),
+                          ],
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _name,
+                            style: TextStyle(
+                              fontSize: 22,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                  ],
+                          IconButton(
+                            icon: Icon(Icons.edit, color: Colors.white),
+                            onPressed: () {
+                              _nameController.text = _name;
+                              setState(() {
+                                _isEditingName = true;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                // Profile Details Section
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      ProfileInfoCard(
+                        title: 'Email',
+                        value: _email,
+                        icon: Icons.email,
+                      ),
+                      SizedBox(height: 10),
+                      ProfileInfoCard(
+                        title: 'Phone Number',
+                        value: _phone,
+                        icon: Icons.phone,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-          
-              // Profile Details Section
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    ProfileInfoCard(
-                      title: 'Email',
-                      value: _email,
-                      icon: Icons.email,
-                    ),
-                    SizedBox(height: 10),
-                    ProfileInfoCard(
-                      title: 'Phone Number',
-                      value: _phone,
-                      icon: Icons.phone,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-      ),
+                DailyExpenseChart(),
+              ],
+            );
+          }),
     );
-    });
   }
 }
 
-Future<Map<String, dynamic>?> getUserData() async{
-  Map<String,dynamic>? userDetails;
-  final db=FirebaseFirestore.instance;
-  DocumentReference documentReference=db.collection('users').doc(FirebaseAuth.instance.currentUser!.email).collection('userDetails').doc('details');
-  await documentReference.get().then((DocumentSnapshot doc){
-    userDetails=doc.data() as Map<String,dynamic>;
+Future<Map<String, dynamic>?> getUserData() async {
+  Map<String, dynamic>? userDetails;
+  final db = FirebaseFirestore.instance;
+  DocumentReference documentReference = db
+      .collection('users')
+      .doc(FirebaseAuth.instance.currentUser!.email)
+      .collection('userDetails')
+      .doc('details');
+  await documentReference.get().then((DocumentSnapshot doc) {
+    userDetails = doc.data() as Map<String, dynamic>;
   });
   return userDetails;
 }
@@ -225,7 +205,8 @@ class ProfileInfoCard extends StatelessWidget {
   final String value;
   final IconData icon;
 
-  const ProfileInfoCard({super.key, 
+  const ProfileInfoCard({
+    super.key,
     required this.title,
     required this.value,
     required this.icon,
