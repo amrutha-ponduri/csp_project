@@ -1,7 +1,0 @@
-<resources>
-    <string name="facebook_app_id">731599355861810</string>
-    <string name="fb_login_protocol_scheme">fb731599355861810</string>
-    <string name="facebook_client_token">23c315df3d9769795bdab43da8965c95</string>
-    <!-- <string></string> -->
-    <string name="app_name">Smart Expend</string>
-</resources>
