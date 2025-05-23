@@ -1,12 +1,13 @@
 // import 'package:firebase_core/firebase_core.dart';
 // import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_expend/pages/monthlychart.dart';
-import 'package:smart_expend/pages/signinpage.dart';
-import 'package:smart_expend/widget/delete.dart';
 import 'pages/monthendpage.dart';
-import 'pages/mothstartpage.dart'; // ✅ Import MonthStartPage
+import 'pages/mothstartpage.dart';
+import 'package:smart_expend/pages/signinpage.dart';
+import 'package:smart_expend/pages/monthlychart.dart';
 import 'pages/dailychart.dart';
+import 'widget/textfield.dart';
+import 'widget/font.dart';
 
 // import 'package:smart_expend/firebase_options.dart';
 void main() async {
@@ -28,18 +29,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: YearlyChartPage(),
-    );
-  }
-}
-
-class MyWidgetPage extends StatelessWidget {
-  const MyWidgetPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: const AddButton(),
+      home: FontPreviewApp(),
     );
   }
 }
