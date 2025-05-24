@@ -109,55 +109,55 @@ class ProfilePageState extends State<ProfilePage> {
                       bottom: Radius.circular(30),
                     ),
                   ),
-                ),
-                SizedBox(height: 10),
-                _isEditingName
-                    ? Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _nameController,
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  labelText: 'Full Name',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                  child: _isEditingName
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _nameController,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    labelText: 'Full Name',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
                                   ),
                                 ),
                               ),
+                              IconButton(
+                                icon: Icon(Icons.check, color: Colors.white),
+                                onPressed: _saveName,
+                              ),
+                            ],
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _name,
+                              style: TextStyle(
+                                fontSize: 22,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             IconButton(
-                              icon: Icon(Icons.check, color: Colors.white),
-                              onPressed: _saveName,
+                              icon: Icon(Icons.edit, color: Colors.white),
+                              onPressed: () {
+                                _nameController.text = _name;
+                                setState(() {
+                                  _isEditingName = true;
+                                });
+                              },
                             ),
                           ],
                         ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _name,
-                            style: TextStyle(
-                              fontSize: 22,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.edit, color: Colors.white),
-                            onPressed: () {
-                              _nameController.text = _name;
-                              setState(() {
-                                _isEditingName = true;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
+                ),
+                SizedBox(height: 10),
                 // Profile Details Section
                 Padding(
                   padding: const EdgeInsets.all(16.0),

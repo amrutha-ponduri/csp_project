@@ -7,7 +7,6 @@ import 'package:smart_expend/pages/mothstartpage.dart';
 import 'package:smart_expend/pages/signinpage.dart';
 import 'package:smart_expend/pages/targetpage.dart';
 
-
 class AuthenticateCheck extends StatefulWidget {
   const AuthenticateCheck({super.key});
 
@@ -23,19 +22,22 @@ class _AuthenticateCheckState extends State<AuthenticateCheck> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(stream: FirebaseAuth.instance.authStateChanges(),
-    builder: (context, snapshot) {
-      if(snapshot.connectionState==ConnectionState.waiting){
-        return const Center(child: CircularProgressIndicator(),);
-      }
-      if(snapshot.hasData){
-        if(DateTime.now().day==1){
-          return MonthStartPage();
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         }
-        return const DailyExpenses();
-      }
-      return const SignInPage();
-    },
+        if (snapshot.hasData) {
+          if (DateTime.now().day == 1) {
+            return MonthStartPage();
+          }
+          return const DailyExpenses();
+        }
+        return const SignInPage();
+      },
     );
   }
 }

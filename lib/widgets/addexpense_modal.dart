@@ -112,8 +112,9 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
-                          var userReference =
-                              db.collection("users").doc(FirebaseAuth.instance.currentUser!.email);
+                          var userReference = db
+                              .collection("users")
+                              .doc(FirebaseAuth.instance.currentUser!.email);
                           userReference
                               .collection("dailyExpenses")
                               .add(<String, dynamic>{

@@ -1,13 +1,6 @@
-import 'dart:ui' as ui;
-import 'dart:typed_data';
-import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -22,30 +15,6 @@ class _DailyExpenseChartState extends State<DailyExpenseChart> {
   GlobalKey chartKey = GlobalKey();
 
   String currentMonthName = DateFormat('MMMM').format(DateTime.now());
-
-  Future<void> _exportChartAsImage() async {
-    RenderRepaintBoundary boundary =
-        chartKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-
-    ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-    ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    Uint8List pngBytes = byteData!.buffer.asUint8List();
-
-    if (await Permission.storage.request().isGranted) {
-      final directory = await getExternalStorageDirectory();
-      final path =
-          '${directory!.path}/chart_${DateTime.now().millisecondsSinceEpoch}.png';
-      File(path).writeAsBytes(pngBytes);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Chart saved at $path')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Storage permission not granted')),
-      );
-    }
-  }
 
   Stream<List<Map<String, dynamic>>> getDailyExpensesStream() {
     return FirebaseFirestore.instance
@@ -136,8 +105,8 @@ class _DailyExpenseChartState extends State<DailyExpenseChart> {
   Widget _buildLineChart(Color color, List<Map<String, dynamic>> data) {
     return LineChart(
       LineChartData(
-        minX: 0,
-        maxX: 30,
+        minX: 1,
+        maxX: 31,
         minY: 0,
         maxY: 1000,
         lineTouchData: LineTouchData(
@@ -146,13 +115,23 @@ class _DailyExpenseChartState extends State<DailyExpenseChart> {
           touchTooltipData: LineTouchTooltipData(
             tooltipBgColor: Colors.black87,
             getTooltipItems: (touchedSpots) {
-              return touchedSpots.map((spot) {
-                String day = data[spot.x.toInt()]['day'].toString();
-                return LineTooltipItem(
-                  "$currentMonthName $day\n₹${spot.y.toInt()}",
-                  const TextStyle(color: Colors.white),
-                );
-              }).toList();
+              // Create map from day to data entry
+              final dayToData = {for (var d in data) d['day']: d};
+
+              return touchedSpots
+                  .map((spot) {
+                    int day = spot.x.toInt();
+                    final matchedData = dayToData[day];
+                    if (matchedData == null) {
+                      return null;
+                    }
+                    return LineTooltipItem(
+                      "$currentMonthName $day\n₹${matchedData['amount'].toInt()}",
+                      const TextStyle(color: Colors.white),
+                    );
+                  })
+                  .whereType<LineTooltipItem>()
+                  .toList();
             },
           ),
         ),
@@ -198,8 +177,8 @@ class _DailyExpenseChartState extends State<DailyExpenseChart> {
           interval: 5,
           reservedSize: 30,
           getTitlesWidget: (value, meta) {
-            int day = value.toInt()+1;
-            if (day % 5 == 1 || day == 31) {
+            int day = value.toInt();
+            if (day != 30 && day % 5 == 0 || day == 1 || day == 31) {
               return Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: Text(

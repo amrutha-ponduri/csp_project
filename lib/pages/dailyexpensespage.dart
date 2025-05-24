@@ -13,6 +13,7 @@ import 'package:smart_expend/pages/profile_page.dart';
 import 'package:smart_expend/widgets/addexpense_modal.dart';
 import 'package:smart_expend/widgets/snackbarwidget.dart';
 import 'package:top_modal_sheet/top_modal_sheet.dart';
+
 class DailyExpenses extends StatefulWidget {
   const DailyExpenses({super.key});
 
@@ -24,23 +25,30 @@ class _DailyExpensesState extends State<DailyExpenses> {
   var db = FirebaseFirestore.instance;
   @override
   Widget build(BuildContext context) {
-    BatchDelete batchDelete=BatchDelete();
+    BatchDelete batchDelete = BatchDelete();
     batchDelete.batchDelete();
     DateTime startDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
     Timestamp startTimeStamp = Timestamp.fromDate(startDate);
-    User? user=FirebaseAuth.instance.currentUser;
-    String? emailAddress=user!.email;
+    User? user = FirebaseAuth.instance.currentUser;
+    String? emailAddress = user!.email;
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(onPressed: () async{
-            await FirebaseAuth.instance.signOut();
-          }, icon: Icon(Icons.logout,color: Color.fromARGB(255, 11, 53, 88),)),
-          IconButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfilePage()));
-            //Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(),));
-          }, icon: Icon(Icons.person_outlined))
-
+          IconButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+              },
+              icon: Icon(
+                Icons.logout,
+                color: Color.fromARGB(255, 11, 53, 88),
+              )),
+          IconButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ProfilePage()));
+                //Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(),));
+              },
+              icon: Icon(Icons.person_outlined))
         ],
         backgroundColor: const Color.fromARGB(255, 180, 200, 234),
         title: const Text("Daily Expenses"),
