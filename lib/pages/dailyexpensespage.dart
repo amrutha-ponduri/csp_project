@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:clay_containers/clay_containers.dart';
+import 'package:intl/intl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:smart_expend/helper_classes/delete_helper.dart';
 import 'package:smart_expend/loading_data/expensemodel.dart';
@@ -141,6 +142,7 @@ class _DailyExpensesState extends State<DailyExpenses> {
                               PopupMenuButton(onSelected: (value) async {
                                 if (value == 'delete') {
                                   try {
+                                    await deleteExpense(expenseDocRef: e.docReference);
                                     await e.docReference.delete();
                                   } on FirebaseException {
                                     Snackbarwidget snackbar = Snackbarwidget(
@@ -217,4 +219,44 @@ class _DailyExpensesState extends State<DailyExpenses> {
       },
     );
   }
+  
+  Future<void> deleteExpense({required DocumentReference expenseDocRef}) async {
+  final userEmail = FirebaseAuth.instance.currentUser!.email;
+  final monthlyDocRef = FirebaseFirestore.instance
+      .collection('users')
+      .doc(userEmail)
+      .collection('monthlyExpenses')
+      .doc('details');
+
+  // Step 1: Get the deleted expense value
+  final docSnapshot = await expenseDocRef.get();
+  if (!docSnapshot.exists) return;
+
+  final data = docSnapshot.data() as Map<String, dynamic>;
+  final double deletedValue = (data['expenseValue'] as num).toDouble();
+
+  // Step 2: Get the current monthly total
+  final monthKey = DateFormat('MMM-yyyy').format(DateTime.now());
+  final monthlySnapshot = await monthlyDocRef.get();
+  double currentTotal = 0.0;
+  if (monthlySnapshot.exists) {
+    final monthData = monthlySnapshot.data() as Map<String, dynamic>;
+    final value = monthData[monthKey];
+    if (value is int) {
+      currentTotal = value.toDouble();
+    } else if (value is double) {
+      currentTotal = value;
+    }
+  }
+
+  // Step 3: Subtract deleted value from monthly total
+  final updatedTotal = currentTotal - deletedValue;
+
+  // Step 4: Update Firestore
+  await monthlyDocRef.update({monthKey: updatedTotal});
+
+  // Step 5: Delete the daily expense document
+  await expenseDocRef.delete();
+}
+
 }

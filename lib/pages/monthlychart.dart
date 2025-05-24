@@ -1,52 +1,45 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-class YearlyChartPage extends StatelessWidget {
+class YearlyChartPage extends StatefulWidget {
+  YearlyChartPage({super.key});
+
+  @override
+  State<YearlyChartPage> createState() => _YearlyChartPageState();
+}
+
+class _YearlyChartPageState extends State<YearlyChartPage> {
   final List<String> months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec'
+    'Jan-${DateTime.now().year}',
+    'Feb-${DateTime.now().year}',
+    'Mar-${DateTime.now().year}',
+    'Apr-${DateTime.now().year}',
+    'May-${DateTime.now().year}',
+    'Jun-${DateTime.now().year}',
+    'Jul-${DateTime.now().year}',
+    'Aug-${DateTime.now().year}',
+    'Sep-${DateTime.now().year}',
+    'Oct-${DateTime.now().year}',
+    'Nov-${DateTime.now().year}',
+    'Dec-${DateTime.now().year}'
   ];
 
-  final List<double> savedAmounts = [
-    500,
-    700,
-    800,
-    600,
-    750,
-    900,
-    850,
-    700,
-    650,
-    800,
-    900,
-    1000,
-  ];
+  List<double> savedAmounts=<double>[];
 
-  final List<double> spentAmounts = [
-    400,
-    550,
-    600,
-    700,
-    650,
-    700,
-    750,
-    650,
-    600,
-    700,
-    800,
-    850,
-  ];
+  List<double> spentAmounts=<double>[];
+  List<double> pocketMony=<double>[]; 
 
+  @override
+  void initState() async{
+    
+    super.initState();
+    await getSpentAmounts();
+    // await getPocketMoney();
+    // getSavedAmounts();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +52,7 @@ class YearlyChartPage extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Container(
+          child: SizedBox(
             width: 1000,
             child: BarChart(
               BarChartData(
@@ -175,4 +168,36 @@ class YearlyChartPage extends StatelessWidget {
       ),
     );
   }
+  
+  Future<void> getSpentAmounts() async {
+  final userEmail = FirebaseAuth.instance.currentUser!.email;
+  final monthlyDocRef = FirebaseFirestore.instance
+      .collection('users')
+      .doc(userEmail)
+      .collection('monthlyExpenses')
+      .doc('details');
+
+  final snapshot = await monthlyDocRef.get();
+
+  spentAmounts.clear(); // Clear existing list
+
+  if (snapshot.exists) {
+    final data = snapshot.data() as Map<String, dynamic>;
+
+    for (var entry in data.entries) {
+      final value = entry.value;
+        spentAmounts.add(value);
+    }
+  }
+}
+  // Future<void> getPocketMoney(){
+  //   final userEmail = FirebaseAuth.instance.currentUser!.email;
+  //   final db=FirebaseFirestore.instance;
+  //   final documentReference=db.collection(users).doc(userEmail).collection('')
+  // }
+  // void getSavedAmounts() {
+  //   for(var amount in spentAmounts){
+
+  //   }
+  // }
 }
