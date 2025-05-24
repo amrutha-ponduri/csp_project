@@ -26,7 +26,19 @@ class _TrackerPageState extends State<TrackerPage> {
 
   void _changeMonth(int offset) {
     setState(() {
-      selectedDate = DateTime(selectedDate.year, selectedDate.month + offset);
+      int newYear = selectedDate.year;
+      int newMonth = selectedDate.month + offset;
+
+      while (newMonth > 12) {
+        newMonth -= 12;
+        newYear += 1;
+      }
+      while (newMonth < 1) {
+        newMonth += 12;
+        newYear -= 1;
+      }
+
+      selectedDate = DateTime(newYear, newMonth);
     });
   }
 
@@ -41,18 +53,71 @@ class _TrackerPageState extends State<TrackerPage> {
       switch (mood) {
         case 'happy':
           icon = Icons.sentiment_very_satisfied;
-          color = Colors.blue;
+          color = Colors.green;
           break;
         case 'neutral':
           icon = Icons.sentiment_neutral;
-          color = Colors.blue;
+          color = Colors.amber;
           break;
         default:
           icon = Icons.sentiment_dissatisfied;
-          color = Colors.blue;
+          color = Colors.red;
       }
       return Icon(icon, color: color, size: 32);
     }).toList();
+  }
+
+  Widget imageCardWithStreak(
+      {required String label, required String imagePath}) {
+    return Column(
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(imagePath),
+                  fit: BoxFit.cover,
+                ),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.blueAccent, width: 2),
+              ),
+            ),
+            SizedBox(width: 6),
+            Icon(Icons.local_fire_department, color: Colors.red, size: 24),
+          ],
+        ),
+        SizedBox(height: 8),
+        Text(label,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  Widget imageCardScore({required String label, required String imagePath}) {
+    return Column(
+      children: [
+        Container(
+          width: 70,
+          height: 70,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(imagePath),
+              fit: BoxFit.cover,
+            ),
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.blueAccent, width: 2),
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(label,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        Text("82/100", style: TextStyle(fontSize: 12, color: Colors.black87)),
+      ],
+    );
   }
 
   @override
@@ -72,8 +137,14 @@ class _TrackerPageState extends State<TrackerPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _infoBox("EXPENSES", "5 days", Icons.local_fire_department),
-                  _infoBox("Score", "82/100", Icons.check_circle_outline),
+                  imageCardWithStreak(
+                    label: "EXPENSES",
+                    imagePath: 'lib/assets/images/doremon.png',
+                  ),
+                  imageCardScore(
+                    label: "SCORE",
+                    imagePath: 'lib/assets/images/nobita.png',
+                  ),
                 ],
               ),
               SizedBox(height: 20),
@@ -100,30 +171,9 @@ class _TrackerPageState extends State<TrackerPage> {
                 runSpacing: 10,
                 children: _buildMonthlyTracker(),
               ),
-              // Year at the bottom has been removed
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _infoBox(String title, String value, IconData icon) {
-    return Container(
-      width: 140,
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.grey.shade400, blurRadius: 4)],
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: Colors.orange, size: 32),
-          SizedBox(height: 5),
-          Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-          Text(value),
-        ],
       ),
     );
   }
