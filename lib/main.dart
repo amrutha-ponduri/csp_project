@@ -1,6 +1,7 @@
 // import 'package:firebase_core/firebase_core.dart';
 // import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'pages/monthendpage.dart';
 import 'pages/mothstartpage.dart';
 import 'package:smart_expend/pages/signinpage.dart';
@@ -11,6 +12,8 @@ import 'widget/font.dart';
 
 // import 'package:smart_expend/firebase_options.dart';
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   // WidgetsFlutterBinding.ensureInitialized();
   // if (kReleaseMode) {
   //   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
