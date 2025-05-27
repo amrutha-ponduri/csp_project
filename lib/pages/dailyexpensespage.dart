@@ -10,6 +10,8 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:smart_expend/helper_classes/delete_helper.dart';
 import 'package:smart_expend/loading_data/expensemodel.dart';
 import 'package:smart_expend/loading_data/get_data.dart';
+import 'package:smart_expend/pages/monthlychart.dart';
+import 'package:smart_expend/pages/mothstartpage.dart';
 import 'package:smart_expend/pages/profile_page.dart';
 import 'package:smart_expend/widgets/addexpense_modal.dart';
 import 'package:smart_expend/widgets/snackbarwidget.dart';
@@ -34,6 +36,15 @@ class _DailyExpensesState extends State<DailyExpenses> {
     String? emailAddress = user!.email;
     return Scaffold(
       appBar: AppBar(
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+                icon: Icon(Icons.menu));
+          },
+        ),
         actions: [
           IconButton(
               onPressed: () async {
@@ -54,6 +65,47 @@ class _DailyExpensesState extends State<DailyExpenses> {
         backgroundColor: const Color.fromARGB(255, 180, 200, 234),
         title: const Text("Daily Expenses"),
         centerTitle: true,
+      ),
+      drawer: Drawer(
+        width: 220, // Custom width
+        child: SafeArea(
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              height: 150, // Set your desired height here
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.savings, color: Colors.lightBlue),
+                    title: Text('Store Pocket Money',
+                        style: TextStyle(color: Colors.blue)),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const MonthStartPage()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.bar_chart, color: Colors.lightBlue),
+                    title: Text('View Monthly chart',
+                        style: TextStyle(color: Colors.blue)),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const YearlyChartPage()),
+                      );
+                    },
+                  ),
+
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
@@ -142,7 +194,8 @@ class _DailyExpensesState extends State<DailyExpenses> {
                               PopupMenuButton(onSelected: (value) async {
                                 if (value == 'delete') {
                                   try {
-                                    await deleteExpense(expenseDocRef: e.docReference);
+                                    await deleteExpense(
+                                        expenseDocRef: e.docReference);
                                     await e.docReference.delete();
                                   } on FirebaseException {
                                     Snackbarwidget snackbar = Snackbarwidget(
@@ -219,44 +272,42 @@ class _DailyExpensesState extends State<DailyExpenses> {
       },
     );
   }
-  
+
   Future<void> deleteExpense({required DocumentReference expenseDocRef}) async {
-  final userEmail = FirebaseAuth.instance.currentUser!.email;
-  final monthlyDocRef = FirebaseFirestore.instance
-      .collection('users')
-      .doc(userEmail)
-      .collection('monthlyExpenses')
-      .doc('details');
+    final userEmail = FirebaseAuth.instance.currentUser!.email;
+    final monthlyDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userEmail)
+        .collection('monthlyExpenses')
+        .doc('${DateTime.now().year}-${DateTime.now().month}details');
 
-  // Step 1: Get the deleted expense value
-  final docSnapshot = await expenseDocRef.get();
-  if (!docSnapshot.exists) return;
+    // Step 1: Get the deleted expense value
+    final docSnapshot = await expenseDocRef.get();
+    if (!docSnapshot.exists) return;
 
-  final data = docSnapshot.data() as Map<String, dynamic>;
-  final double deletedValue = (data['expenseValue'] as num).toDouble();
+    final data = docSnapshot.data() as Map<String, dynamic>;
+    final double deletedValue = (data['expenseValue'] as num).toDouble();
 
-  // Step 2: Get the current monthly total
-  final monthKey = DateFormat('MMM-yyyy').format(DateTime.now());
-  final monthlySnapshot = await monthlyDocRef.get();
-  double currentTotal = 0.0;
-  if (monthlySnapshot.exists) {
-    final monthData = monthlySnapshot.data() as Map<String, dynamic>;
-    final value = monthData[monthKey];
-    if (value is int) {
-      currentTotal = value.toDouble();
-    } else if (value is double) {
-      currentTotal = value;
+    // Step 2: Get the current monthly total
+    final monthlySnapshot = await monthlyDocRef.get();
+    double currentTotal = 0.0;
+    if (monthlySnapshot.exists) {
+      final monthData = monthlySnapshot.data() as Map<String, dynamic>;
+      final value = monthData['expenseValue'];
+      if (value is int) {
+        currentTotal = value.toDouble();
+      } else if (value is double) {
+        currentTotal = value;
+      }
     }
+
+    // Step 3: Subtract deleted value from monthly total
+    final updatedTotal = currentTotal - deletedValue;
+
+    // Step 4: Update Firestore
+    await monthlyDocRef.update({'expenseValue': updatedTotal});
+
+    // Step 5: Delete the daily expense document
+    await expenseDocRef.delete();
   }
-
-  // Step 3: Subtract deleted value from monthly total
-  final updatedTotal = currentTotal - deletedValue;
-
-  // Step 4: Update Firestore
-  await monthlyDocRef.update({monthKey: updatedTotal});
-
-  // Step 5: Delete the daily expense document
-  await expenseDocRef.delete();
-}
-
 }

@@ -177,7 +177,7 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
         .collection('users')
         .doc(userEmail)
         .collection('monthlyExpenses')
-        .doc('details');
+        .doc('${DateTime.now().year}-${DateTime.now().month}details');
 
     double totalExpense = await getExpenseOfCurrentMonth();
 
@@ -189,9 +189,12 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
 
     final docSnapshot = await monthlyDocRef.get();
     if (docSnapshot.exists) {
-      await monthlyDocRef.update({currentMonth: totalExpense});
+      await monthlyDocRef.update({'expenseValue': totalExpense});
     } else {
-      await monthlyDocRef.set({currentMonth: totalExpense});
+      await monthlyDocRef.set({
+        'expenseValue': totalExpense,
+        'month': DateFormat('MMM-yyyy').format(DateTime.now()),
+      });
     }
   }
 
@@ -201,14 +204,14 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.email)
         .collection('monthlyExpenses')
-        .doc('details');
+        .doc('${DateTime.now().year}-${DateTime.now().month}details');
     DocumentSnapshot documentSnapshot = await documentReference.get();
 
     final data = documentSnapshot.data() as Map<String, dynamic>? ?? {};
 
     double currentExpense = 0.0;
-    if (data.containsKey(currentMonth)) {
-      final value = data[currentMonth];
+    if (data.containsKey('expenseValue')) {
+      final value = data['expenseValue'];
       if (value is int) {
         currentExpense = value.toDouble();
       } else if (value is double) {

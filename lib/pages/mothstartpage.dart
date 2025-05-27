@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class MonthStartPage extends StatefulWidget {
   const MonthStartPage({super.key});
@@ -12,6 +15,73 @@ class _MonthStartPageState extends State<MonthStartPage> {
   final TextEditingController pocketMoneyController = TextEditingController();
   final TextEditingController targetSavingsController = TextEditingController();
 
+  double? pocketMoney;
+  double? targetSavings;
+  bool isEditing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchMonthData();
+  }
+
+  Future<void> fetchMonthData() async {
+    final email = FirebaseAuth.instance.currentUser?.email;
+    if (email == null) return;
+    final docRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(email)
+        .collection('pocketMoney')
+        .doc('${DateTime.now().year}-${DateTime.now().month}details');
+
+    final doc = await docRef.get();
+    if (doc.exists) {
+      setState(() {
+        pocketMoney = doc['pocketMoney'];
+        targetSavings = doc['targetSavings'];
+      });
+    }
+  }
+
+  Future<void> saveValues({required double pocket, required double target}) async {
+    final email = FirebaseAuth.instance.currentUser?.email;
+    if (email == null) return;
+    final docRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(email)
+        .collection('pocketMoney')
+        .doc('${DateTime.now().year}-${DateTime.now().month}details');
+    await docRef.set({
+      'pocketMoney': pocket,
+      'targetSavings': target,
+      'month': DateFormat('MMM-yyyy').format(DateTime.now()),
+    });
+    setState(() {
+      pocketMoney = pocket;
+      targetSavings = target;
+      isEditing = false;
+    });
+  }
+
+  void _startEditing() {
+    pocketMoneyController.text = pocketMoney?.toString() ?? '';
+    targetSavingsController.text = targetSavings?.toString() ?? '';
+    setState(() {
+      isEditing = true;
+    });
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      final pocket = double.parse(pocketMoneyController.text);
+      final target = double.parse(targetSavingsController.text);
+      saveValues(pocket: pocket, target: target);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Saved: ₹$pocket pocket money, ₹$target target savings")),
+      );
+    }
+  }
+
   @override
   void dispose() {
     pocketMoneyController.dispose();
@@ -19,119 +89,134 @@ class _MonthStartPageState extends State<MonthStartPage> {
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      final pocketMoney = double.parse(pocketMoneyController.text);
-      final targetSavings = double.parse(targetSavingsController.text);
-
-      // You can do something with the values here
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                'Pocket Money: ₹$pocketMoney | Target Savings: ₹$targetSavings')),
-      );
-      Navigator.pop(context);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.lightBlue.shade50,
       appBar: AppBar(
-        title: const Text("Month Start Page"),
+        title: const Text("Doraemon Monthly Start", style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.lightBlue.shade700,
         centerTitle: true,
-        backgroundColor: Colors.deepPurple.shade100,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFE0BBE4), Color(0xFF957DAD)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              Center(
-                child: Icon(
-                  Icons.account_balance_wallet,
-                  size: 80,
-                  color: Colors.deepPurple.shade900,
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Pocket money field with neutral color and rounded corners
-              TextFormField(
-                controller: pocketMoneyController,
-                decoration: InputDecoration(
-                  labelText: "Pocket Money (₹)",
-                  filled: true,
-                  fillColor: Colors.white, // Neutral background for input
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20), // Rounded corners
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Image.asset(
+              'assets/images/doraemon.png',
+              height: 100,
+            ),
+            const SizedBox(height: 20),
+            if (pocketMoney != null && targetSavings != null && !isEditing) ...[
+              Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                color: Colors.white,
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _displayRow("Pocket Money", pocketMoney!, Colors.yellow.shade700),
+                      const SizedBox(height: 10),
+                      _displayRow("Target Savings", targetSavings!, Colors.green.shade700),
+                      const SizedBox(height: 20),
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.edit),
+                        label: const Text("Edit"),
+                        onPressed: _startEditing,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.lightBlue.shade600,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter pocket money';
-                  }
-                  final num = double.tryParse(value);
-                  if (num == null || num < 0) {
-                    return 'Enter a valid number';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              // Target savings field with neutral color and rounded corners
-              TextFormField(
-                controller: targetSavingsController,
-                decoration: InputDecoration(
-                  labelText: "Target Savings (₹)",
-                  filled: true,
-                  fillColor: Colors.white, // Neutral background for input
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20), // Rounded corners
-                  ),
+              )
+            ] else ...[
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    _buildTextField(
+                      controller: pocketMoneyController,
+                      label: 'Enter Pocket Money (₹)',
+                    ),
+                    const SizedBox(height: 20),
+                    _buildTextField(
+                      controller: targetSavingsController,
+                      label: 'Enter Target Savings (₹)',
+                      validator: (value) {
+                        final target = double.tryParse(value ?? '');
+                        final pocket = double.tryParse(pocketMoneyController.text);
+                        if (target == null || target < 0) return 'Invalid target amount';
+                        if (pocket != null && target > pocket) {
+                          return 'Target cannot exceed pocket money';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: _submitForm,
+                      icon: const Icon(Icons.save),
+                      label: Text(isEditing ? "Update" : "Save"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.lightBlue.shade600,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
+                    ),
+                  ],
                 ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter target savings';
-                  }
-                  final target = double.tryParse(value);
-                  final pocket = double.tryParse(pocketMoneyController.text);
-                  if (target == null || target < 0) {
-                    return 'Enter a valid number';
-                  }
-                  if (pocket != null && target > pocket) {
-                    return 'Target savings cannot exceed pocket money';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 30),
-              // Submit button
-              Center(
-                child: ElevatedButton(
-                  onPressed: _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 12),
-                  ),
-                  child: const Text("Let's save money"),
-                ),
-              ),
-            ],
-          ),
+              )
+            ]
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.number,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      validator: validator ??
+          (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter a value';
+            }
+            if (double.tryParse(value) == null) {
+              return 'Enter a valid number';
+            }
+            return null;
+          },
+    );
+  }
+
+  Widget _displayRow(String title, double value, Color iconColor) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text("$title:", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Row(
+          children: [
+            Text("₹$value", style: const TextStyle(fontSize: 18)),
+            const SizedBox(width: 8),
+            Icon(Icons.check_circle, color: iconColor, size: 24),
+          ],
+        )
+      ],
     );
   }
 }
