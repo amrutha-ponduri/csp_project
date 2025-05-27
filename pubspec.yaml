@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  intl: ^0.18.1
+  google_fonts: ^6.1.0
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -54,6 +57,14 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  assets:
+    - assets/images/doraemon_wallet.png
+    - assets/images/nobita_money.png
+    - assets/images/doraemon_happy.png
+  
+    - assets/images/shizuka.png
+
+
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
