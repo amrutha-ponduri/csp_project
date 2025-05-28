@@ -45,7 +45,7 @@ dependencies:
   modal_bottom_sheet: ^3.0.0
   cloud_firestore: ^5.6.7
   flutter_popup: ^3.3.4
-  intl: ^0.20.2
+  intl: 0.18.1
   image_picker: ^1.1.2
   flutter_facebook_auth: ^7.1.2
   firebase_auth: ^5.5.3
@@ -55,6 +55,7 @@ dependencies:
   clay_containers: ^0.3.4
   google_sign_in: ^6.2.2
   top_modal_sheet: ^2.1.0
+  syncfusion_flutter_charts: ^22.2.9
 
 dev_dependencies:
   flutter_test:
