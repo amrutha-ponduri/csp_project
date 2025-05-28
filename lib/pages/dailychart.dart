@@ -182,7 +182,7 @@ class _DailyExpenseChartState extends State<DailyExpenseChart> {
               return Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: Text(
-                  'Day $day',
+                  '${DateFormat('MMM').format(DateTime.now())} $day',
                   style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w500,

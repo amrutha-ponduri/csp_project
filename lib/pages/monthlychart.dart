@@ -12,18 +12,8 @@ class YearlyChartPage extends StatefulWidget {
 
 class _YearlyChartPageState extends State<YearlyChartPage> {
   final List<String> months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec'
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
 
   Map<String, double> pocketMap = {};
@@ -50,8 +40,11 @@ class _YearlyChartPageState extends State<YearlyChartPage> {
       double pocket = pocketMap[key] ?? 0;
       double saved = pocket - spent;
 
-      chartData.add(_ChartData(months[i], saved.clamp(0, double.infinity),
-          spent.clamp(0, double.infinity)));
+      chartData.add(_ChartData(
+        months[i],
+        saved.clamp(0, double.infinity),
+        spent.clamp(0, double.infinity),
+      ));
     }
 
     setState(() => isLoading = false);
@@ -62,8 +55,7 @@ class _YearlyChartPageState extends State<YearlyChartPage> {
     if (userEmail == null) return;
 
     final db = FirebaseFirestore.instance;
-    final collectionRef =
-        db.collection('users').doc(userEmail).collection('pocketMoney');
+    final collectionRef = db.collection('users').doc(userEmail).collection('pocketMoney');
     pocketMap.clear();
 
     final snapshot = await collectionRef.get();
@@ -82,8 +74,7 @@ class _YearlyChartPageState extends State<YearlyChartPage> {
     if (userEmail == null) return;
 
     final db = FirebaseFirestore.instance;
-    final collectionRef =
-        db.collection('users').doc(userEmail).collection('monthlyExpenses');
+    final collectionRef = db.collection('users').doc(userEmail).collection('monthlyExpenses');
     spentMap.clear();
 
     final snapshot = await collectionRef.get();
@@ -100,52 +91,96 @@ class _YearlyChartPageState extends State<YearlyChartPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFE6F4FF), // Light Doraemon blue background
       appBar: AppBar(
-        title: const Text('Yearly Saved & Spent'),
-        backgroundColor: const Color(0xFF0099FF),
+        title: const Text(
+          'Doraemon’s Yearly Tracker',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontFamily: 'ComicSans',
+            fontSize: 20,
+          ),
+        ),
+        backgroundColor: const Color(0xFF0099FF), // Doraemon blue
         centerTitle: true,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF0099FF)))
           : Padding(
               padding: const EdgeInsets.all(16.0),
-              child: SfCartesianChart(
-                title: ChartTitle(text: 'Monthly Savings vs Expenses'),
-                primaryXAxis: CategoryAxis(
-                  // <-- Now X-axis uses String months
-                  title: AxisTitle(text: 'Month'),
-                  labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                primaryYAxis: NumericAxis(
-                  // <-- Y-axis is for amount
-                  title: AxisTitle(text: 'Amount'),
-                ),
-
-                legend: const Legend(isVisible: true),
-                tooltipBehavior: TooltipBehavior(enable: true),
-                series: <CartesianSeries<dynamic, dynamic>>[
-                  BarSeries<_ChartData, String>(
-                    name: 'Saved',
-                    dataSource: chartData,
-                    xValueMapper: (_ChartData data, _) => data.month,
-                    yValueMapper: (_ChartData data, _) => data.saved,
-                    color: const Color(0xFF0099FF),
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
-                    width: 0.7,
-                    spacing: 0.0,
+              child: Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                elevation: 5,
+                color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: SfCartesianChart(
+                    title: ChartTitle(
+                      text: '💰 POCKET SAVINGS V/S 🍜 SPENT',
+                      textStyle: const TextStyle(
+                        color: Color.fromARGB(255, 1, 19, 110),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
+                        fontFamily: 'ComicSans',
+                      ),
+                    ),
+                    primaryXAxis: CategoryAxis(
+                      labelStyle: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'ComicSans',
+                      ),
+                    ),
+                    primaryYAxis: NumericAxis(
+                      title: AxisTitle(
+                        text: '₹ Amount',
+                        textStyle: const TextStyle(
+                          color: Color(0xFFFFD700),
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'ComicSans',
+                        ),
+                      ),
+                      labelStyle: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'ComicSans',
+                      ),
+                    ),
+                    legend: const Legend(
+                      isVisible: true,
+                      textStyle: TextStyle(fontFamily: 'ComicSans'),
+                    ),
+                    tooltipBehavior: TooltipBehavior(enable: true),
+                    isTransposed: true,
+                    series: <CartesianSeries<dynamic, dynamic>>[
+                      BarSeries<_ChartData, String>(
+                        name: 'Saved 💙',
+                        dataSource: chartData,
+                        xValueMapper: (_ChartData data, _) => data.month,
+                        yValueMapper: (_ChartData data, _) => data.saved,
+                        color: const Color(0xFF0099FF),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
+                        ),
+                        width: 0.5,
+                        spacing: 0.0,
+                      ),
+                      BarSeries<_ChartData, String>(
+                        name: 'Spent 🔴',
+                        dataSource: chartData,
+                        xValueMapper: (_ChartData data, _) => data.month,
+                        yValueMapper: (_ChartData data, _) => data.spent,
+                        color: const Color(0xFFFF4444),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
+                        ),
+                        width: 0.5,
+                        spacing: 0.0,
+                      ),
+                    ],
                   ),
-                  BarSeries<_ChartData, String>(
-                    name: 'Spent',
-                    dataSource: chartData,
-                    xValueMapper: (_ChartData data, _) => data.month,
-                    yValueMapper: (_ChartData data, _) => data.spent,
-                    color: const Color(0xFFFF4444),
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(10),topRight: Radius.circular(10)),
-                    width: 0.7,
-                    spacing: 0.0,
-                  ),
-                ],
-                isTransposed: true, // Makes it horizontal
+                ),
               ),
             ),
     );

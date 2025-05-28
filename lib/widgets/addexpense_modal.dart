@@ -136,10 +136,9 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
                           double previousExpense = await getPreviousExpense();
-                          widget.documentReference!.set(<String, dynamic>{
+                          widget.documentReference!.update(<String,dynamic>{
                             'expenseName': expenseName,
                             'expenseValue': expenseValue,
-                            'timeStamp': DateTime.now(),
                           });
                           await addExpenseToMonth(
                               previousExpense: previousExpense);
