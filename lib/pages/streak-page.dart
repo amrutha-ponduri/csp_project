@@ -12,7 +12,7 @@ class _StreaksPageState extends State<StreaksPage> {
   DateTime selectedMonth = DateTime.now();
 
   final Map<int, bool> streakData = {
-    for (int i = 1; i <= 31; i++) i: i % 7 != 0 // simulate some days as false
+    for (int i = 1; i <= 31; i++) i: i % 7 != 0
   };
 
   int get continuousStreakCount {
@@ -75,8 +75,6 @@ class _StreaksPageState extends State<StreaksPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // Images row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -92,10 +90,7 @@ class _StreaksPageState extends State<StreaksPage> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 16),
-
-                // Info cards row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -114,10 +109,7 @@ class _StreaksPageState extends State<StreaksPage> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 24),
-
-                // Month selector
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -142,22 +134,18 @@ class _StreaksPageState extends State<StreaksPage> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 16),
-
-                // Grid + Shizuka
                 SizedBox(
                   height: gridHeight,
                   child: Row(
                     children: [
-                      // Grid
                       Expanded(
                         flex: 3,
                         child: GridView.builder(
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: daysInMonth,
                           gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
+                              const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 7,
                             crossAxisSpacing: spacing,
                             mainAxisSpacing: spacing,
@@ -181,8 +169,6 @@ class _StreaksPageState extends State<StreaksPage> {
                           },
                         ),
                       ),
-
-                      // Shizuka
                       Expanded(
                         flex: 1,
                         child: Align(
@@ -258,32 +244,65 @@ class DayStreakBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: completed ? doraemonBlue : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isToday ? Colors.green : doraemonRed,
-          width: 2,
+    final imageAsset = completed
+        ? 'assets/images/doraemon_happy.png'
+        : 'assets/images/doraemon_sad.png';
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isToday ? Colors.green : Colors.transparent,
+              width: 2,
+            ),
+            boxShadow: isToday
+                ? [
+                    BoxShadow(
+                      color: Colors.green.withOpacity(0.5),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    )
+                  ]
+                : [],
+          ),
+          child: Image.asset(
+            imageAsset,
+            width: 40,
+            height: 40,
+            fit: BoxFit.contain,
+          ),
         ),
-        boxShadow: isToday
-            ? [
+        Positioned(
+          top: -10, // pushed further out
+          right: -10, // pushed further out
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.black26),
+              boxShadow: [
                 BoxShadow(
-                  color: Colors.green.withOpacity(0.5),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 3,
+                  offset: const Offset(1, 1),
                 )
-              ]
-            : [],
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        '$day',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: completed ? Colors.white : doraemonRed,
+              ],
+            ),
+            child: Text(
+              '$day',
+              style: const TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }

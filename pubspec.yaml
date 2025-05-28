@@ -60,9 +60,9 @@ flutter:
   assets:
     - assets/images/doraemon_wallet.png
     - assets/images/nobita_money.png
-    - assets/images/doraemon_happy.png
-  
     - assets/images/shizuka.png
+    - assets/images/doraemon_happy.png
+    - assets/images/doraemon_sad.png
 
 
 
