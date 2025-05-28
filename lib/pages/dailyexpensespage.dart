@@ -25,11 +25,17 @@ class DailyExpenses extends StatefulWidget {
 }
 
 class _DailyExpensesState extends State<DailyExpenses> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    BatchDelete bd= BatchDelete();
+    bd.batchDelete();
+    bd.batchDeleteYears();
+    super.initState();
+  }
   var db = FirebaseFirestore.instance;
   @override
   Widget build(BuildContext context) {
-    BatchDelete batchDelete = BatchDelete();
-    batchDelete.batchDelete();
     DateTime startDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
     Timestamp startTimeStamp = Timestamp.fromDate(startDate);
     User? user = FirebaseAuth.instance.currentUser;

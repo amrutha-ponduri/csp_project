@@ -98,76 +98,82 @@ class _MonthStartPageState extends State<MonthStartPage> {
         backgroundColor: Colors.lightBlue.shade700,
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+      body: Container(
+        height: double.infinity,
+        decoration: BoxDecoration(
+          image: DecorationImage(image :AssetImage('assets/images/doraemon_sleeping1.png')),
+        ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Image.asset(
-              'assets/images/doraemon.png',
-              height: 100,
-            ),
-            const SizedBox(height: 20),
+            //const SizedBox(height: 20),
             if (pocketMoney != null && targetSavings != null && !isEditing) ...[
-              Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                color: Colors.white,
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      _displayRow("Pocket Money", pocketMoney!, Colors.yellow.shade700),
-                      const SizedBox(height: 10),
-                      _displayRow("Target Savings", targetSavings!, Colors.green.shade700),
-                      const SizedBox(height: 20),
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.edit),
-                        label: const Text("Edit"),
-                        onPressed: _startEditing,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.lightBlue.shade600,
-                          foregroundColor: Colors.white,
+              Padding(
+                padding: const EdgeInsets.only(bottom: 75.0),
+                child: Card(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  color: Colors.white,
+                  elevation: 4,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _displayRow("Pocket Money", pocketMoney!, Colors.yellow.shade700),
+                        const SizedBox(height: 10),
+                        _displayRow("Target Savings", targetSavings!, Colors.green.shade700),
+                        const SizedBox(height: 20),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.edit),
+                          label: const Text("Edit"),
+                          onPressed: _startEditing,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.lightBlue.shade600,
+                            foregroundColor: Colors.white,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               )
             ] else ...[
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    _buildTextField(
-                      controller: pocketMoneyController,
-                      label: 'Enter Pocket Money (₹)',
-                    ),
-                    const SizedBox(height: 20),
-                    _buildTextField(
-                      controller: targetSavingsController,
-                      label: 'Enter Target Savings (₹)',
-                      validator: (value) {
-                        final target = double.tryParse(value ?? '');
-                        final pocket = double.tryParse(pocketMoneyController.text);
-                        if (target == null || target < 0) return 'Invalid target amount';
-                        if (pocket != null && target > pocket) {
-                          return 'Target cannot exceed pocket money';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton.icon(
-                      onPressed: _submitForm,
-                      icon: const Icon(Icons.save),
-                      label: Text(isEditing ? "Update" : "Save"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.lightBlue.shade600,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 50.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      _buildTextField(
+                        controller: pocketMoneyController,
+                        label: 'Enter Pocket Money (₹)',
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 20),
+                      _buildTextField(
+                        controller: targetSavingsController,
+                        label: 'Enter Target Savings (₹)',
+                        validator: (value) {
+                          final target = double.tryParse(value ?? '');
+                          final pocket = double.tryParse(pocketMoneyController.text);
+                          if (target == null || target < 0) return 'Invalid target amount';
+                          if (pocket != null && target > pocket) {
+                            return 'Target cannot exceed pocket money';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton.icon(
+                        onPressed: _submitForm,
+                        icon: const Icon(Icons.save),
+                        label: Text(isEditing ? "Update" : "Save"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.lightBlue.shade600,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               )
             ]

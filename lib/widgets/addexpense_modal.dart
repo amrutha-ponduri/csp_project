@@ -230,33 +230,4 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
     double previousExpense = data['expenseValue'];
     return previousExpense;
   }
-
-  Future<void> deletePreviousYearExpenses() async {
-    final userEmail = FirebaseAuth.instance.currentUser!.email;
-    final monthlyDocRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(userEmail)
-        .collection('monthlyExpenses')
-        .doc('details');
-
-    final snapshot = await monthlyDocRef.get();
-
-    if (!snapshot.exists) return;
-
-    final data = snapshot.data() as Map<String, dynamic>;
-    final currentYear = DateTime.now().year.toString();
-
-    // Filter out keys not from current year
-    final outdatedKeys =
-        data.keys.where((key) => !key.endsWith(currentYear)).toList();
-
-    // If there are outdated fields, delete them
-    if (outdatedKeys.isNotEmpty) {
-      Map<String, dynamic> updates = {};
-      for (var key in outdatedKeys) {
-        updates[key] = FieldValue.delete();
-      }
-      await monthlyDocRef.update(updates);
-    }
-  }
 }
