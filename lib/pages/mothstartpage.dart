@@ -43,7 +43,8 @@ class _MonthStartPageState extends State<MonthStartPage> {
     }
   }
 
-  Future<void> saveValues({required double pocket, required double target}) async {
+  Future<void> saveValues(
+      {required double pocket, required double target}) async {
     final email = FirebaseAuth.instance.currentUser?.email;
     if (email == null) return;
     final docRef = FirebaseFirestore.instance
@@ -77,7 +78,9 @@ class _MonthStartPageState extends State<MonthStartPage> {
       final target = double.parse(targetSavingsController.text);
       saveValues(pocket: pocket, target: target);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Saved: ₹$pocket pocket money, ₹$target target savings")),
+        SnackBar(
+            content:
+                Text("Saved: ₹$pocket pocket money, ₹$target target savings")),
       );
     }
   }
@@ -91,23 +94,29 @@ class _MonthStartPageState extends State<MonthStartPage> {
 
   @override
   Widget build(BuildContext context) {
+    final MainAxisAlignment alignment = pocketMoney != null && targetSavings != null && !isEditing?MainAxisAlignment.spaceBetween:MainAxisAlignment.end;
     return Scaffold(
-      backgroundColor: Colors.lightBlue.shade50,
-      appBar: AppBar(
-        title: const Text("Doraemon Monthly Start", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.lightBlue.shade700,
-        centerTitle: true,
-      ),
-      body: Container(
+        backgroundColor: Colors.lightBlue.shade50,
+        appBar: AppBar(
+          title: const Text("Doraemon Monthly Start",
+              style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.lightBlue.shade700,
+          centerTitle: true,
+        ),
+        body: Container(
         height: double.infinity,
         decoration: BoxDecoration(
           image: DecorationImage(image :AssetImage('assets/images/doraemon_sleeping1.png')),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: alignment,
           children: [
             //const SizedBox(height: 20),
             if (pocketMoney != null && targetSavings != null && !isEditing) ...[
+              Padding(
+                padding: const EdgeInsets.only(left: 70.0),
+                child: Image.asset("assets/images/doraemon_dream.png",height: 280),
+              ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 75.0),
                 child: Card(
@@ -180,7 +189,7 @@ class _MonthStartPageState extends State<MonthStartPage> {
           ],
         ),
       ),
-    );
+   );
   }
 
   Widget _buildTextField({
@@ -214,7 +223,8 @@ class _MonthStartPageState extends State<MonthStartPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text("$title:", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text("$title:",
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         Row(
           children: [
             Text("₹$value", style: const TextStyle(fontSize: 18)),

@@ -74,44 +74,41 @@ class _DailyExpensesState extends State<DailyExpenses> {
         child: SafeArea(
           child: Align(
             alignment: Alignment.topLeft,
-            child: SizedBox(
-              height: 150, // Set your desired height here
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    leading: Icon(Icons.savings, color: Colors.lightBlue),
-                    title: Text('Store Pocket Money',
-                        style: TextStyle(color: Colors.blue)),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const MonthStartPage()),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.bar_chart, color: Colors.lightBlue),
-                    title: Text('View Monthly chart',
-                        style: TextStyle(color: Colors.blue)),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const YearlyChartPage()),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.logout),
-                    title: Text('Log Out'),
-                    onTap: () async{
-                      await FirebaseAuth.instance.signOut();
-                    },
-                  )
-                ],
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: Icon(Icons.savings, color: Colors.lightBlue),
+                  title: Text('Store Pocket Money',
+                      style: TextStyle(color: Colors.blue)),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const MonthStartPage()),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.bar_chart, color: Colors.lightBlue),
+                  title: Text('View Monthly chart',
+                      style: TextStyle(color: Colors.blue)),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const YearlyChartPage()),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.logout),
+                  title: Text('Log Out'),
+                  onTap: () async{
+                    await FirebaseAuth.instance.signOut();
+                  },
+                )
+              ],
             ),
           ),
         ),
