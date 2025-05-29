@@ -14,6 +14,7 @@ class SignInHelper {
       idToken: googleAuth?.idToken,
     );
     await FirebaseAuth.instance.signInWithCredential(credential);
+    await addSingUpDate();
   }
 
   Future<void> signInWithFacebook() async {
@@ -21,6 +22,7 @@ class SignInHelper {
     final OAuthCredential facebookAuthCredential =
         FacebookAuthProvider.credential(loginResult.accessToken!.tokenString);
     await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
+    await addSingUpDate();
   }
 
   void signUpWithEmailPassword(
@@ -56,6 +58,7 @@ class SignInHelper {
       } else {
         message = 'Authentication failed: ${e.message}';
       }
+      await addSingUpDate();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message)),
       );
@@ -81,5 +84,19 @@ class SignInHelper {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(message)));
     }
+  }
+
+  Future<void> addSingUpDate() async {
+    final db = FirebaseFirestore.instance;
+    final now = DateTime.now();
+    final String? email = FirebaseAuth.instance.currentUser!.email;
+    final docReference = db
+        .collection('users')
+        .doc(email)
+        .collection('streaksDetails')
+        .doc('details');
+    await docReference.set({
+      'signUpDate': DateTime(now.year, now.month),
+    }, SetOptions(merge: true));
   }
 }
