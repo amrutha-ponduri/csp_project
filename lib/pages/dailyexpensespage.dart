@@ -13,9 +13,11 @@ import 'package:smart_expend/loading_data/get_data.dart';
 import 'package:smart_expend/pages/monthlychart.dart';
 import 'package:smart_expend/pages/mothstartpage.dart';
 import 'package:smart_expend/pages/profile_page.dart';
+import 'package:smart_expend/pages/streak_page.dart';
 import 'package:smart_expend/widgets/addexpense_modal.dart';
 import 'package:smart_expend/widgets/snackbarwidget.dart';
 import 'package:top_modal_sheet/top_modal_sheet.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class DailyExpenses extends StatefulWidget {
   const DailyExpenses({super.key});
@@ -52,14 +54,9 @@ class _DailyExpensesState extends State<DailyExpenses> {
           },
         ),
         actions: [
-          IconButton(
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-              },
-              icon: Icon(
-                Icons.logout,
-                color: Color.fromARGB(255, 11, 53, 88),
-              )),
+          IconButton(onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context) => StreaksPage(),));
+          }, icon: Icon(FontAwesomeIcons.fireFlameCurved)),
           IconButton(
               onPressed: () {
                 Navigator.push(context,
@@ -106,7 +103,13 @@ class _DailyExpensesState extends State<DailyExpenses> {
                       );
                     },
                   ),
-
+                  ListTile(
+                    leading: Icon(Icons.logout),
+                    title: Text('Log Out'),
+                    onTap: () async{
+                      await FirebaseAuth.instance.signOut();
+                    },
+                  )
                 ],
               ),
             ),

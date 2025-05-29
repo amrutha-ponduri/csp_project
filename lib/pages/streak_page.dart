@@ -11,14 +11,41 @@ class StreaksPage extends StatefulWidget {
 class _StreaksPageState extends State<StreaksPage> {
   DateTime selectedMonth = DateTime.now();
 
-  final Map<int, bool> streakData = {
-    for (int i = 1; i <= 31; i++) i: i % 7 != 0
-  };
+  // Generate mock streak data per month
+  Map<int, bool> generateStreakDataForMonth(DateTime month) {
+    int days = DateTime(month.year, month.month + 1, 0).day;
+    Map<int, bool> data = {};
+    for (int i = 1; i <= days; i++) {
+      // Mock logic: streaked if not a multiple of 6
+      data[i] = i % 6 != 0;
+    }
+    return data;
+  }
+
+  Map<int, bool> get currentStreakData =>
+      generateStreakDataForMonth(selectedMonth);
+
+  int get daysInMonth {
+    return DateTime(selectedMonth.year, selectedMonth.month + 1, 0).day;
+  }
+
+  int get totalStreakDays {
+    return currentStreakData.entries.where((e) => e.value).length;
+  }
 
   int get continuousStreakCount {
+    final now = DateTime.now();
+    if (now.month != selectedMonth.month || now.year != selectedMonth.year) {
+      return 0;
+    }
+
+    final data = currentStreakData;
+    int today = now.day;
     int count = 0;
-    for (int day = 1; day <= daysInMonth; day++) {
-      if (streakData[day] == true) {
+
+    // Count backwards from today
+    for (int i = today; i >= 1; i--) {
+      if (data[i] == true) {
         count++;
       } else {
         break;
@@ -26,9 +53,6 @@ class _StreaksPageState extends State<StreaksPage> {
     }
     return count;
   }
-
-  int get totalStreakDays =>
-      streakData.entries.where((e) => e.key <= daysInMonth && e.value).length;
 
   void _changeMonth(int offset) {
     setState(() {
@@ -41,12 +65,6 @@ class _StreaksPageState extends State<StreaksPage> {
 
   final Color doraemonBlue = const Color(0xFF2196F3);
   final Color doraemonRed = const Color(0xFFD32F2F);
-
-  int get daysInMonth {
-    final nextMonth = DateTime(selectedMonth.year, selectedMonth.month + 1, 0);
-    return nextMonth.day;
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -153,7 +171,7 @@ class _StreaksPageState extends State<StreaksPage> {
                           ),
                           itemBuilder: (context, index) {
                             final day = index + 1;
-                            final completed = streakData[day] ?? false;
+                            final completed = currentStreakData[day] ?? false;
                             final isToday = DateTime.now().year ==
                                     selectedMonth.year &&
                                 DateTime.now().month == selectedMonth.month &&

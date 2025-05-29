@@ -1,5 +1,7 @@
 // ignore_for_file: unused_import
 
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +28,9 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
   var db = FirebaseFirestore.instance;
   String expenseName = "";
   double expenseValue = 0;
+  DateTime? lastActiveDate;
+  int? currentStreak;
+  int? maximumStreak;
   String currentMonth =
       DateFormat('MMM-yyyy').format(DateTime.now()); // e.g. "May-2025"
   @override
@@ -115,9 +120,9 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
-                          var userReference = db
-                              .collection("users")
-                              .doc(FirebaseAuth.instance.currentUser!.email);
+                          String? email =
+                              FirebaseAuth.instance.currentUser!.email;
+                          var userReference = db.collection("users").doc(email);
                           userReference
                               .collection("dailyExpenses")
                               .add(<String, dynamic>{
@@ -125,6 +130,17 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                             'expenseValue': expenseValue,
                             'timeStamp': DateTime.now(),
                           });
+                          await getStreakDetails();
+                          await db
+                              .collection('users')
+                              .doc(email)
+                              .collection('streaksDetails')
+                              .doc('details')
+                              .set(<String, dynamic>{
+                            'currentStreak': currentStreak,
+                            'maximumStreak': maximumStreak,
+                            'lastActiveDate': lastActiveDate
+                          }, SetOptions(merge: true));
                           await addExpenseToMonth();
                           Navigator.pop(context);
                         }
@@ -136,7 +152,7 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
                           double previousExpense = await getPreviousExpense();
-                          widget.documentReference!.update(<String,dynamic>{
+                          widget.documentReference!.update(<String, dynamic>{
                             'expenseName': expenseName,
                             'expenseValue': expenseValue,
                           });
@@ -229,5 +245,43 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
     final data = documentSnapshot.data() as Map<String, dynamic>;
     double previousExpense = data['expenseValue'];
     return previousExpense;
+  }
+
+  Future<void> getStreakDetails() async {
+    String? email = FirebaseAuth.instance.currentUser!.email;
+    final db = FirebaseFirestore.instance;
+    var documentReference = db
+        .collection('users')
+        .doc(email)
+        .collection('streaksDetails')
+        .doc('details');
+    var documentSnapshot = await documentReference.get();
+    if (documentSnapshot.exists) {
+      final data = documentSnapshot.data() as Map<String, dynamic>;
+      lastActiveDate = data['lastActiveDate'];
+      currentStreak = data['currentStreak'];
+      maximumStreak = data['maximumStreak'];
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      if (currentStreak == null || maximumStreak == null) {
+        currentStreak = 1;
+        maximumStreak = 1;
+        lastActiveDate = today;
+      } else if (lastActiveDate == today.subtract(Duration(days: 1))) {
+        currentStreak = currentStreak! + 1;
+        maximumStreak = max(currentStreak!, maximumStreak!);
+        lastActiveDate = today;
+      } else if (lastActiveDate != today) {
+        currentStreak = 1;
+        maximumStreak = 1;
+        lastActiveDate = today;
+      }
+    } else {
+      currentStreak = 1;
+      maximumStreak = 1;
+      final now = DateTime.now();
+      final onlyDate = DateTime(now.year, now.month, now.day);
+      lastActiveDate = onlyDate;
+    }
   }
 }
