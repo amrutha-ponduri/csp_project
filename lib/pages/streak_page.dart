@@ -13,21 +13,22 @@ class StreaksPage extends StatefulWidget {
 }
 
 class _StreaksPageState extends State<StreaksPage> {
+  Map<int, bool> _monthlyStreakData = {};
+  Map<int, bool> get currentStreakData => _monthlyStreakData;
+  final Map<String, Map<int, bool>> _streakCache = {};
+
   DateTime selectedMonth = DateTime.now();
   DateTime? signUpDate;
   // Generate mock streak data per month
-  Map<int, bool> generateStreakDataForMonth(DateTime month) {
-    int days = DateTime(month.year, month.month + 1, 0).day;
-    Map<int, bool> data = {};
-    for (int i = 1; i <= days; i++) {
-      // Mock logic: streaked if not a multiple of 6
-      data[i] = i % 6 != 0;
-    }
-    return data;
-  }
-
-  Map<int, bool> get currentStreakData =>
-      generateStreakDataForMonth(selectedMonth);
+  // Map<int, bool> generateStreakDataForMonth(DateTime month) {
+  //   int days = DateTime(month.year, month.month + 1, 0).day;
+  //   Map<int, bool> data = {};
+  //   for (int i = 1; i <= days; i++) {
+  //     // Mock logic: streaked if not a multiple of 6
+  //     data[i] = i % 6 != 0;
+  //   }
+  //   return data;
+  // }
 
   int get daysInMonth {
     return DateTime(selectedMonth.year, selectedMonth.month + 1, 0).day;
@@ -58,7 +59,7 @@ class _StreaksPageState extends State<StreaksPage> {
     return count;
   }
 
-  void _changeMonth(int offset) {
+  void _changeMonth(int offset) async {
     DateTime newMonth =
         DateTime(selectedMonth.year, selectedMonth.month + offset);
 
@@ -74,6 +75,13 @@ class _StreaksPageState extends State<StreaksPage> {
 
     setState(() {
       selectedMonth = newMonth;
+      isLoading = true;
+    });
+
+    await getStreakOfCurrentMonth();
+
+    setState(() {
+      isLoading = false;
     });
   }
 
@@ -85,6 +93,9 @@ class _StreaksPageState extends State<StreaksPage> {
   @override
   void initState() {
     super.initState();
+    Future.delayed(Duration.zero, () async {
+      await getStreakOfCurrentMonth();
+    });
     fetchstreakDetails();
   }
 
@@ -96,7 +107,7 @@ class _StreaksPageState extends State<StreaksPage> {
     const double cellSize = 40;
     int rowCount = (daysInMonth / 7).ceil();
     double gridHeight = rowCount * (cellSize + spacing) - spacing;
-    if (isLoading) {
+    if (signUpDate == null) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
@@ -169,8 +180,11 @@ class _StreaksPageState extends State<StreaksPage> {
                             icon: Icon(Icons.arrow_left,
                                 size: 32,
                                 color: canGoBack ? arrowColor : Colors.grey),
-                            onPressed:
-                                canGoBack ? () => _changeMonth(-1) : null,
+                            onPressed: canGoBack
+                                ? () {
+                                    _changeMonth(-1);
+                                  }
+                                : null,
                           ),
                           AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
@@ -187,8 +201,11 @@ class _StreaksPageState extends State<StreaksPage> {
                             icon: Icon(Icons.arrow_right,
                                 size: 32,
                                 color: canGoForward ? arrowColor : Colors.grey),
-                            onPressed:
-                                canGoForward ? () => _changeMonth(1) : null,
+                            onPressed: canGoForward
+                                ? () {
+                                    _changeMonth(1);
+                                  }
+                                : null,
                           ),
                         ],
                       ),
@@ -199,35 +216,71 @@ class _StreaksPageState extends State<StreaksPage> {
                           children: [
                             Expanded(
                               flex: 3,
-                              child: GridView.builder(
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: daysInMonth,
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 7,
-                                  crossAxisSpacing: spacing,
-                                  mainAxisSpacing: spacing,
-                                  childAspectRatio: 1,
-                                ),
-                                itemBuilder: (context, index) {
-                                  final day = index + 1;
-                                  final completed =
-                                      currentStreakData[day] ?? false;
-                                  final isToday = DateTime.now().year ==
-                                          selectedMonth.year &&
-                                      DateTime.now().month ==
-                                          selectedMonth.month &&
-                                      DateTime.now().day == day;
+                              child: isLoading
+                                  ? const Center(
+                                      child: CircularProgressIndicator())
+                                  : GridView.builder(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: daysInMonth,
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 7,
+                                        crossAxisSpacing: spacing,
+                                        mainAxisSpacing: spacing,
+                                        childAspectRatio: 1,
+                                      ),
+                                      itemBuilder: (context, index) {
+                                        final day = index + 1;
+                                        final date = DateTime(
+                                            selectedMonth.year,
+                                            selectedMonth.month,
+                                            day);
 
-                                  return DayStreakBadge(
-                                    day: day,
-                                    completed: completed,
-                                    doraemonBlue: doraemonBlue,
-                                    doraemonRed: doraemonRed,
-                                    isToday: isToday,
-                                  );
-                                },
-                              ),
+                                        final isFuture =
+                                            date.isAfter(DateTime.now());
+                                        final isBeforeSignUp =
+                                            signUpDate != null &&
+                                                date.isBefore(signUpDate!);
+                                        final completed =
+                                            currentStreakData[day] ?? false;
+                                        final isToday = DateTime.now().year ==
+                                                selectedMonth.year &&
+                                            DateTime.now().month ==
+                                                selectedMonth.month &&
+                                            DateTime.now().day == day;
+
+                                        String imageAsset;
+                                        Color labelColor;
+                                        Color textColor = Colors.white;
+                                        if (isFuture || isBeforeSignUp || (isToday && !completed)) {
+                                          imageAsset =
+                                              'assets/images/neutral_doraemon.png';
+                                          labelColor = Colors.white;
+                                          textColor = Colors.black;
+                                        } else {
+                                          if(completed) {
+                                            imageAsset = 'assets/images/happy_doraemon.png';
+                                            labelColor = const Color.fromARGB(255, 5, 82, 3);
+                                          }
+                                          else{
+                                            imageAsset = 'assets/images/sad_doraemon.png';
+                                            labelColor = const Color.fromARGB(255, 189, 17, 5);
+                                          }
+                                        }
+
+                                        return DayStreakBadge(
+                                          day: day,
+                                          completed: completed,
+                                          doraemonBlue: doraemonBlue,
+                                          doraemonRed: doraemonRed,
+                                          isToday: isToday,
+                                          imageAsset: imageAsset,
+                                          labelColor: labelColor,
+                                          textColor: textColor,
+                                        );
+                                      },
+                                    ),
                             ),
                             Expanded(
                               flex: 1,
@@ -268,5 +321,106 @@ class _StreaksPageState extends State<StreaksPage> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  Future<void> getStreakOfCurrentMonth() async {
+    final cacheKey =
+        '${selectedMonth.year}-${selectedMonth.month.toString().padLeft(2, '0')}';
+
+    // If cached, use it immediately
+    if (_streakCache.containsKey(cacheKey)) {
+      setState(() {
+        _monthlyStreakData = _streakCache[cacheKey]!;
+        isLoading = false;
+      });
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final db = FirebaseFirestore.instance;
+    final String? email = FirebaseAuth.instance.currentUser!.email;
+
+    final userDoc = await db
+        .collection('users')
+        .doc(email)
+        .collection('streaksDetails')
+        .doc('details')
+        .get();
+
+    if (!userDoc.exists) {
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+
+    //final data = userDoc.data()!;
+    final DateTime currentMonthStart =
+        DateTime(selectedMonth.year, selectedMonth.month, 1);
+    final DateTime currentMonthEnd =
+        DateTime(selectedMonth.year, selectedMonth.month + 1, 0);
+
+    final QuerySnapshot lastChangeBeforeMonth = await db
+        .collection('users')
+        .doc(email)
+        .collection('activeStreak')
+        .where('timeStamp', isLessThan: currentMonthStart)
+        .orderBy('timeStamp', descending: true)
+        .limit(1)
+        .get();
+
+    int status = -1; // default value
+
+    if (lastChangeBeforeMonth.docs.isNotEmpty) {
+      status = lastChangeBeforeMonth.docs.first['streakStatus'] as int;
+    }
+
+// STEP 2: Get all streak changes in the current month
+    final QuerySnapshot streakChangesSnapshot = await db
+        .collection('users')
+        .doc(email)
+        .collection('activeStreak')
+        .where('timeStamp', isGreaterThanOrEqualTo: currentMonthStart)
+        .orderBy('timeStamp', descending: false)
+        .get();
+
+    List<QueryDocumentSnapshot> changeDocs = streakChangesSnapshot.docs;
+
+// Generate streak map for the current month
+    Map<int, bool> newStreakData = {};
+    DateTime pointer = currentMonthStart;
+    int index = 0;
+
+    while (pointer.isBefore(currentMonthEnd.add(const Duration(days: 1)))) {
+      if (index < changeDocs.length) {
+        DateTime changeDate =
+            (changeDocs[index]['timeStamp'] as Timestamp).toDate();
+        if (isSameDate(changeDate, pointer)) {
+          status = changeDocs[index]['streakStatus'] as int;
+          index++;
+        }
+      }
+      if (pointer.month == selectedMonth.month &&
+          pointer.year == selectedMonth.year) {
+        newStreakData[pointer.day] = status == 1;
+      }
+      pointer = pointer.add(const Duration(days: 1));
+    }
+
+    // Cache the result
+    _streakCache[cacheKey] = newStreakData;
+
+    setState(() {
+      _monthlyStreakData = newStreakData;
+      isLoading = false;
+    });
+  }
+
+// Helper to compare dates (ignores time)
+  bool isSameDate(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 }

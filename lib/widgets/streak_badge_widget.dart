@@ -6,22 +6,23 @@ class DayStreakBadge extends StatelessWidget {
   final bool isToday;
   final Color doraemonBlue;
   final Color doraemonRed;
-
+  final String imageAsset;
+  final Color labelColor;
+  final Color textColor;
   const DayStreakBadge({
     super.key,
     required this.day,
     required this.completed,
     required this.doraemonBlue,
     required this.doraemonRed,
+    required this.imageAsset,
+    required this.labelColor,
+    required this.textColor,
     this.isToday = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final imageAsset = completed
-        ? 'assets/images/doraemon_happy.png'
-        : 'assets/images/doraemon_sad.png';
-
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -55,7 +56,7 @@ class DayStreakBadge extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
+              color: labelColor,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.black26),
               boxShadow: [
@@ -68,10 +69,10 @@ class DayStreakBadge extends StatelessWidget {
             ),
             child: Text(
               '$day',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 9,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: textColor,
               ),
             ),
           ),

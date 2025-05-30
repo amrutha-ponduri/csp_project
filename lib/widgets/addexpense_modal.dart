@@ -1,4 +1,4 @@
-// ignore_for_file: unused_import
+// ignore_for_file: unused_import, use_build_context_synchronously
 
 import 'dart:math';
 
@@ -141,6 +141,7 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                             'maximumStreak': maximumStreak,
                             'lastActiveDate': lastActiveDate
                           }, SetOptions(merge: true));
+                          await setStreakActiveDetails();
                           await addExpenseToMonth();
                           Navigator.pop(context);
                         }
@@ -258,7 +259,7 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
     var documentSnapshot = await documentReference.get();
     if (documentSnapshot.exists) {
       final data = documentSnapshot.data() as Map<String, dynamic>;
-      lastActiveDate = data['lastActiveDate'];
+      lastActiveDate = (data['lastActiveDate'] as Timestamp).toDate();
       currentStreak = data['currentStreak'];
       maximumStreak = data['maximumStreak'];
       final now = DateTime.now();
@@ -283,5 +284,62 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
       final onlyDate = DateTime(now.year, now.month, now.day);
       lastActiveDate = onlyDate;
     }
+  }
+
+  Future<void> setStreakActiveDetails() async {
+    final db = FirebaseFirestore.instance;
+    final String? email = FirebaseAuth.instance.currentUser!.email;
+    final CollectionReference collectionReference =
+        db.collection('users').doc(email).collection('activeStreak');
+    final DateTime now = DateTime.now();
+    final DateTime today = DateTime(now.year, now.month, now.day);
+    final DateTime yesterday = today.subtract(Duration(days: 1));
+
+    final doesCollectionExist =
+        await collectionExists(collectionReference: collectionReference);
+
+    if (!doesCollectionExist) {
+      // First ever streak entry
+      await collectionReference.add({
+        'timeStamp': today,
+        'streakStatus': 1,
+      });
+    } else {
+      // Fetch latest streak entry
+      final latestSnapshot = await collectionReference
+          .orderBy('timeStamp', descending: true)
+          .limit(1)
+          .get();
+
+      final latestDoc = latestSnapshot.docs.firstOrNull;
+      final latestDate = latestDoc != null
+          ? (latestDoc['timeStamp'] as Timestamp).toDate()
+          : null;
+      final latestOnlyDate = latestDate != null
+          ? DateTime(latestDate.year, latestDate.month, latestDate.day)
+          : null;
+
+      if (latestOnlyDate != today) {
+        // Handle break in streak if needed
+        if (lastActiveDate != today && lastActiveDate != yesterday) {
+          await collectionReference.add({
+            'timeStamp': lastActiveDate!.add(Duration(days: 1)),
+            'streakStatus': -1,
+          });
+        }
+
+        // Always add today's status
+        await collectionReference.add({
+          'timeStamp': today,
+          'streakStatus': 1,
+        });
+      }
+    }
+  }
+
+  Future<bool> collectionExists(
+      {required CollectionReference collectionReference}) async {
+    final snapshot = await collectionReference.limit(1).get();
+    return snapshot.docs.isNotEmpty;
   }
 }
