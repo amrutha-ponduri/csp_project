@@ -12,7 +12,8 @@ class _StreaksPageState extends State<StreaksPage> {
   DateTime selectedMonth = DateTime.now();
 
   final Map<int, bool> streakData = {
-    for (int i = 1; i <= 31; i++) i: i % 7 != 0
+    for (int i = 1; i <= 31; i++)
+      if (i % 5 != 0) i: i % 2 == 0 // test sample
   };
 
   int get continuousStreakCount {
@@ -153,15 +154,21 @@ class _StreaksPageState extends State<StreaksPage> {
                           ),
                           itemBuilder: (context, index) {
                             final day = index + 1;
-                            final completed = streakData[day] ?? false;
                             final isToday = DateTime.now().year ==
                                     selectedMonth.year &&
                                 DateTime.now().month == selectedMonth.month &&
                                 DateTime.now().day == day;
 
+                            String status;
+                            if (streakData.containsKey(day)) {
+                              status = streakData[day]! ? 'happy' : 'sad';
+                            } else {
+                              status = 'neutral';
+                            }
+
                             return DayStreakBadge(
                               day: day,
-                              completed: completed,
+                              status: status,
                               doraemonBlue: doraemonBlue,
                               doraemonRed: doraemonRed,
                               isToday: isToday,
@@ -228,7 +235,7 @@ class _StreaksPageState extends State<StreaksPage> {
 
 class DayStreakBadge extends StatelessWidget {
   final int day;
-  final bool completed;
+  final String status; // "happy", "sad", "neutral"
   final bool isToday;
   final Color doraemonBlue;
   final Color doraemonRed;
@@ -236,7 +243,7 @@ class DayStreakBadge extends StatelessWidget {
   const DayStreakBadge({
     Key? key,
     required this.day,
-    required this.completed,
+    required this.status,
     required this.doraemonBlue,
     required this.doraemonRed,
     this.isToday = false,
@@ -244,9 +251,15 @@ class DayStreakBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageAsset = completed
-        ? 'assets/images/doraemon_happy.png'
-        : 'assets/images/doraemon_sad.png';
+    String imageAsset;
+    if (status == 'happy') {
+      imageAsset = 'assets/images/doraemon_happy.png';
+    } else if (status == 'sad') {
+      imageAsset = 'assets/images/doraemon_sad.png';
+    } else {
+      imageAsset =
+          'assets/images/doraemon_neutral.png'; // Make sure this exists
+    }
 
     return Stack(
       clipBehavior: Clip.none,
@@ -276,8 +289,8 @@ class DayStreakBadge extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: -10, // pushed further out
-          right: -10, // pushed further out
+          top: -10,
+          right: -10,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
             decoration: BoxDecoration(
