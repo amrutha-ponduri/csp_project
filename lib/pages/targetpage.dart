@@ -19,13 +19,14 @@ class TargetPageState extends State<TargetPage> {
   DateTime? _selectedDate;
   //File? _imageFile;
 
-  final List<String> _currencies = [
-    'USD (\$)',
-    'EUR (€)',
-    'INR (₹)',
-    'GBP (£)',
-    'JPY (¥)'
-  ];
+  final Map<String, String> _currencies = {
+    'USD (\$)': '\$',
+    'EUR (€)': '€',
+    'INR (₹)': '₹',
+    'GBP (£)': '£',
+    'JPY (¥)': '¥',
+  };
+
   String _selectedCurrency = 'USD (\$)';
 
   Future<void> _pickDate() async {
@@ -75,7 +76,7 @@ class TargetPageState extends State<TargetPage> {
 
   void _showSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: Duration(seconds: 2)),
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
     );
   }
 
@@ -100,6 +101,8 @@ class TargetPageState extends State<TargetPage> {
 
   @override
   Widget build(BuildContext context) {
+    final currencySymbol = _currencies[_selectedCurrency] ?? '';
+
     return Scaffold(
       body: Container(
         height: double.infinity,
@@ -167,10 +170,10 @@ class TargetPageState extends State<TargetPage> {
                                   flex: 2,
                                   child: DropdownButtonFormField<String>(
                                     value: _selectedCurrency,
-                                    items: _currencies.map((currency) {
+                                    items: _currencies.entries.map((entry) {
                                       return DropdownMenuItem<String>(
-                                        value: currency,
-                                        child: Text(currency),
+                                        value: entry.key,
+                                        child: Text(entry.value),
                                       );
                                     }).toList(),
                                     onChanged: (value) {
