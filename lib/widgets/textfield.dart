@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DoraemonTextFieldApp extends StatefulWidget {
-  const DoraemonTextFieldApp({Key? key}) : super(key: key);
+  const DoraemonTextFieldApp({super.key});
 
   @override
   State<DoraemonTextFieldApp> createState() => _DoraemonTextFieldAppState();
@@ -83,8 +83,9 @@ class _DoraemonTextFieldAppState extends State<DoraemonTextFieldApp> {
             label: 'Name',
             iconAssetPath: 'assets/icons/doraemon_name.png',
             validator: (value) {
-              if (value == null || value.isEmpty)
+              if (value == null || value.isEmpty) {
                 return 'Please enter your name';
+              }
               return null;
             },
           ),

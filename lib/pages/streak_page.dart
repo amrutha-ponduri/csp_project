@@ -84,7 +84,7 @@ class _StreaksPageState extends State<StreaksPage> {
       isLoading = false;
     });
   }
-
+  DateTime? lastActiveDate;
   final Color doraemonBlue = const Color(0xFF2196F3);
   final Color doraemonRed = const Color(0xFFD32F2F);
   bool isLoading = true;
@@ -97,6 +97,7 @@ class _StreaksPageState extends State<StreaksPage> {
       await getStreakOfCurrentMonth();
     });
     fetchstreakDetails();
+    fetchLastActiveDate();
   }
 
   @override
@@ -113,6 +114,7 @@ class _StreaksPageState extends State<StreaksPage> {
       );
     }
     final now = DateTime.now();
+    //fetchLastActiveDate();
     final currentMonthStart = DateTime(now.year, now.month);
     final signupMonthStart = DateTime(signUpDate!.year, signUpDate!.month);
     final canGoBack = selectedMonth.isAfter(signupMonthStart);
@@ -236,7 +238,7 @@ class _StreaksPageState extends State<StreaksPage> {
                                             selectedMonth.year,
                                             selectedMonth.month,
                                             day);
-
+                                        final today = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day);
                                         final isFuture =
                                             date.isAfter(DateTime.now());
                                         final isBeforeSignUp =
@@ -253,7 +255,7 @@ class _StreaksPageState extends State<StreaksPage> {
                                         String imageAsset;
                                         Color labelColor;
                                         Color textColor = Colors.white;
-                                        if (isFuture || isBeforeSignUp || (isToday && !completed)) {
+                                        if (isFuture || isBeforeSignUp || (isToday && (lastActiveDate != today))) {
                                           imageAsset =
                                               'assets/images/neutral_doraemon.png';
                                           labelColor = Colors.white;
@@ -318,6 +320,22 @@ class _StreaksPageState extends State<StreaksPage> {
     signUpDate = (data['signUpDate'] as Timestamp).toDate();
     currentStreak = data['currentStreak'];
     maximumStreaks = data['maximumStreak'];
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> fetchLastActiveDate() async{
+    final db = FirebaseFirestore.instance;
+    final String? email = FirebaseAuth.instance.currentUser!.email;
+    final docReference = db
+        .collection('users')
+        .doc(email)
+        .collection('streaksDetails')
+        .doc('details');
+    final documentSnapshot = await docReference.get();
+    final data = documentSnapshot.data() as Map<String, dynamic>;
+    lastActiveDate = (data['lastActiveDate'] as Timestamp).toDate();
     setState(() {
       isLoading = false;
     });

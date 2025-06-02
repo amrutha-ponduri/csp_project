@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class FontPreviewApp extends StatelessWidget {
-  const FontPreviewApp({Key? key}) : super(key: key);
+  const FontPreviewApp({super.key});
 
   @override
   Widget build(BuildContext context) {
