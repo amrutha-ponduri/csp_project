@@ -19,16 +19,6 @@ class _StreaksPageState extends State<StreaksPage> {
 
   DateTime selectedMonth = DateTime.now();
   DateTime? signUpDate;
-  // Generate mock streak data per month
-  // Map<int, bool> generateStreakDataForMonth(DateTime month) {
-  //   int days = DateTime(month.year, month.month + 1, 0).day;
-  //   Map<int, bool> data = {};
-  //   for (int i = 1; i <= days; i++) {
-  //     // Mock logic: streaked if not a multiple of 6
-  //     data[i] = i % 6 != 0;
-  //   }
-  //   return data;
-  // }
 
   int get daysInMonth {
     return DateTime(selectedMonth.year, selectedMonth.month + 1, 0).day;
@@ -84,6 +74,7 @@ class _StreaksPageState extends State<StreaksPage> {
       isLoading = false;
     });
   }
+
   DateTime? lastActiveDate;
   final Color doraemonBlue = const Color(0xFF2196F3);
   final Color doraemonRed = const Color(0xFFD32F2F);
@@ -238,7 +229,10 @@ class _StreaksPageState extends State<StreaksPage> {
                                             selectedMonth.year,
                                             selectedMonth.month,
                                             day);
-                                        final today = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day);
+                                        final today = DateTime(
+                                            DateTime.now().year,
+                                            DateTime.now().month,
+                                            DateTime.now().day);
                                         final isFuture =
                                             date.isAfter(DateTime.now());
                                         final isBeforeSignUp =
@@ -255,19 +249,25 @@ class _StreaksPageState extends State<StreaksPage> {
                                         String imageAsset;
                                         Color labelColor;
                                         Color textColor = Colors.white;
-                                        if (isFuture || isBeforeSignUp || (isToday && (lastActiveDate != today))) {
+                                        if (isFuture ||
+                                            isBeforeSignUp ||
+                                            (isToday &&
+                                                (lastActiveDate != today))) {
                                           imageAsset =
                                               'assets/images/neutral_doraemon.png';
                                           labelColor = Colors.white;
                                           textColor = Colors.black;
                                         } else {
-                                          if(completed) {
-                                            imageAsset = 'assets/images/happy_doraemon.png';
-                                            labelColor = const Color.fromARGB(255, 5, 82, 3);
-                                          }
-                                          else{
-                                            imageAsset = 'assets/images/sad_doraemon.png';
-                                            labelColor = const Color.fromARGB(255, 189, 17, 5);
+                                          if (completed) {
+                                            imageAsset =
+                                                'assets/images/happy_doraemon.png';
+                                            labelColor = const Color.fromARGB(
+                                                255, 5, 82, 3);
+                                          } else {
+                                            imageAsset =
+                                                'assets/images/sad_doraemon.png';
+                                            labelColor = const Color.fromARGB(
+                                                255, 189, 17, 5);
                                           }
                                         }
 
@@ -325,7 +325,7 @@ class _StreaksPageState extends State<StreaksPage> {
     });
   }
 
-  Future<void> fetchLastActiveDate() async{
+  Future<void> fetchLastActiveDate() async {
     final db = FirebaseFirestore.instance;
     final String? email = FirebaseAuth.instance.currentUser!.email;
     final docReference = db
@@ -426,6 +426,24 @@ class _StreaksPageState extends State<StreaksPage> {
         newStreakData[pointer.day] = status == 1;
       }
       pointer = pointer.add(const Duration(days: 1));
+    }
+    // After generating newStreakData...
+
+// Ensure active streaks don't go beyond lastActiveDate
+    final today = DateTime.now();
+    final DateTime lastDate = DateTime(today.year, today.month, today.day);
+    if (lastActiveDate != null) {
+      final DateTime lastActiveDay = DateTime(
+          lastActiveDate!.year, lastActiveDate!.month, lastActiveDate!.day);
+
+      for (int i = 1; i <= daysInMonth; i++) {
+        final date = DateTime(selectedMonth.year, selectedMonth.month, i);
+
+        // If date is after lastActiveDate and before today, force inactive
+        if (date.isAfter(lastActiveDay) && date.isBefore(lastDate)) {
+          newStreakData[i] = false;
+        }
+      }
     }
 
     // Cache the result

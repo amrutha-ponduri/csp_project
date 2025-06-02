@@ -169,13 +169,13 @@ class _SignInPageState extends State<SignInPage> {
                     signInHelper.signInWithGoogle();
                   },
                 ),
-                const SizedBox(height: 10),
-                FacebookAuthButton(
-                  onPressed: () {
-                    SignInHelper signInHelper = SignInHelper();
-                    signInHelper.signInWithFacebook();
-                  },
-                ),
+                // const SizedBox(height: 10),
+                // FacebookAuthButton(
+                //   onPressed: () {
+                //     SignInHelper signInHelper = SignInHelper();
+                //     signInHelper.signInWithFacebook();
+                //   },
+                // ),
 
                 const SizedBox(height: 30),
 

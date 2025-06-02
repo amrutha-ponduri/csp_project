@@ -8,7 +8,6 @@ import 'package:smart_expend/pages/mothstartpage.dart';
 import 'package:smart_expend/pages/signinpage.dart';
 import 'package:smart_expend/helper_classes/authenticationhandler.dart';
 import 'package:smart_expend/pages/targetpage.dart';
-import 'package:smart_expend/streamguide.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

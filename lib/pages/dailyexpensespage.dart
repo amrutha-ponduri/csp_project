@@ -15,6 +15,7 @@ import 'package:smart_expend/pages/mothstartpage.dart';
 import 'package:smart_expend/pages/profile_page.dart';
 import 'package:smart_expend/pages/streak_page.dart';
 import 'package:smart_expend/widgets/addexpense_modal.dart';
+import 'package:smart_expend/widgets/expense_tracker.dart';
 import 'package:smart_expend/widgets/snackbarwidget.dart';
 import 'package:top_modal_sheet/top_modal_sheet.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -91,7 +92,7 @@ class _DailyExpensesState extends State<DailyExpenses> {
                 ),
                 ListTile(
                   leading: Icon(Icons.bar_chart, color: Colors.lightBlue),
-                  title: Text('View Monthly chart',
+                  title: Text('View Yearly chart',
                       style: TextStyle(color: Colors.blue)),
                   onTap: () {
                     Navigator.push(
@@ -99,6 +100,12 @@ class _DailyExpensesState extends State<DailyExpenses> {
                       MaterialPageRoute(
                           builder: (context) => const YearlyChartPage()),
                     );
+                  },
+                ),
+                ListTile(
+                  title: Text('Pie chart'),
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ExpensePieChartPage(),));
                   },
                 ),
                 ListTile(

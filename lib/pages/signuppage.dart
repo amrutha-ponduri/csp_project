@@ -100,20 +100,6 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                   const SizedBox(height: 10),
                   const SizedBox(height: 10),
-                  GestureDetector(
-                    onTap: _pickImage,
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.grey[200],
-                      backgroundImage:
-                          _image != null ? FileImage(_image!) : null,
-                      child: _image == null
-                          ? const Icon(Icons.camera_alt,
-                              size: 40, color: Colors.grey)
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
                   buildTextField(
                     label: 'Name',
                     controller: nameController,
@@ -207,13 +193,13 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                       signInHelper.signInWithGoogle();
                     },
                   ),
-                  const SizedBox(height: 10),
-                  FacebookAuthButton(
-                    onPressed: () {
-                      SignInHelper signInHelper = SignInHelper();
-                      signInHelper.signInWithFacebook();
-                    },
-                  ),
+                  // const SizedBox(height: 10),
+                  // FacebookAuthButton(
+                  //   onPressed: () {
+                  //     SignInHelper signInHelper = SignInHelper();
+                  //     signInHelper.signInWithFacebook();
+                  //   },
+                  // ),
                 ],
               ),
             ),
