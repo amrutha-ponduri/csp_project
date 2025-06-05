@@ -37,8 +37,8 @@ class _MonthStartPageState extends State<MonthStartPage> {
     final doc = await docRef.get();
     if (doc.exists) {
       setState(() {
-        pocketMoney = doc['pocketMoney'];
-        targetSavings = doc['targetSavings'];
+        pocketMoney = (doc['pocketMoney'] as num).toDouble();
+        targetSavings = (doc['targetSavings'] as num).toDouble();
       });
     }
   }
@@ -77,11 +77,6 @@ class _MonthStartPageState extends State<MonthStartPage> {
       final pocket = double.parse(pocketMoneyController.text);
       final target = double.parse(targetSavingsController.text);
       saveValues(pocket: pocket, target: target);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text("Saved: ₹$pocket pocket money, ₹$target target savings")),
-      );
     }
   }
 
@@ -94,102 +89,138 @@ class _MonthStartPageState extends State<MonthStartPage> {
 
   @override
   Widget build(BuildContext context) {
-    final MainAxisAlignment alignment = pocketMoney != null && targetSavings != null && !isEditing?MainAxisAlignment.spaceBetween:MainAxisAlignment.end;
+    final MainAxisAlignment alignment =
+        pocketMoney != null && targetSavings != null && !isEditing
+            ? MainAxisAlignment.spaceBetween
+            : MainAxisAlignment.end;
     return Scaffold(
-        backgroundColor: Colors.lightBlue.shade50,
-        appBar: AppBar(
-          title: const Text("Doraemon Monthly Start",
-              style: TextStyle(color: Colors.white)),
-          backgroundColor: Colors.lightBlue.shade700,
-          centerTitle: true,
-        ),
-        body: Container(
-        height: double.infinity,
-        decoration: BoxDecoration(
-          image: DecorationImage(image :AssetImage('assets/images/doraemon_sleeping1.png')),
-        ),
-        child: Column(
-          mainAxisAlignment: alignment,
-          children: [
-            //const SizedBox(height: 20),
-            if (pocketMoney != null && targetSavings != null && !isEditing) ...[
-              Padding(
-                padding: const EdgeInsets.only(left: 70.0),
-                child: Image.asset("assets/images/doraemon_dream.png",height: 280),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 75.0),
-                child: Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  color: Colors.white,
-                  elevation: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        _displayRow("Pocket Money", pocketMoney!, Colors.yellow.shade700),
-                        const SizedBox(height: 10),
-                        _displayRow("Target Savings", targetSavings!, Colors.green.shade700),
-                        const SizedBox(height: 20),
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.edit),
-                          label: const Text("Edit"),
-                          onPressed: _startEditing,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.lightBlue.shade600,
-                            foregroundColor: Colors.white,
+      backgroundColor: Colors.lightBlue.shade50,
+      appBar: AppBar(
+        title: const Text("Doraemon Monthly Start",
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.lightBlue.shade700,
+        centerTitle: true,
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceAround, // No pushing apart
+        children: [
+          if (pocketMoney != null && targetSavings != null && !isEditing) ...[
+            SizedBox(
+              height: MediaQuery.of(context).size.height - 150, // adjust based on your screen
+              child: Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  Positioned(
+                    top: 40,
+                    left: MediaQuery.of(context).size.width*0.3+10,
+                    child: Image.asset("assets/images/doraemon_dream.png", height: 250),
+                  ),
+                  Positioned(
+                    top: 185,
+                    child: Image.asset("assets/images/doraemon_sleeping1.png", height: 270),
+                  ),
+                  Positioned(
+                    top: 395,
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      child: Card(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        color: Colors.white,
+                        elevation: 6,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _displayRow("Pocket Money", pocketMoney!, Colors.yellow.shade700),
+                              const SizedBox(height: 10),
+                              _displayRow("Target Savings", targetSavings!, Colors.green.shade700),
+                              const SizedBox(height: 20),
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.edit),
+                                label: const Text("Edit"),
+                                onPressed: _startEditing,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.lightBlue.shade600,
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              )
-            ] else ...[
-              Padding(
-                padding: const EdgeInsets.only(bottom: 50.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      _buildTextField(
-                        controller: pocketMoneyController,
-                        label: 'Enter Pocket Money (₹)',
-                      ),
-                      const SizedBox(height: 20),
-                      _buildTextField(
-                        controller: targetSavingsController,
-                        label: 'Enter Target Savings (₹)',
-                        validator: (value) {
-                          final target = double.tryParse(value ?? '');
-                          final pocket = double.tryParse(pocketMoneyController.text);
-                          if (target == null || target < 0) return 'Invalid target amount';
-                          if (pocket != null && target > pocket) {
-                            return 'Target cannot exceed pocket money';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton.icon(
-                        onPressed: _submitForm,
-                        icon: const Icon(Icons.save),
-                        label: Text(isEditing ? "Update" : "Save"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.lightBlue.shade600,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ],
+              ),
+            )
+
+          ] else ...[
+            SizedBox(
+              height: MediaQuery.of(context).size.height - 250, // adjust based on your screen
+              child: Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  Positioned(
+                    top: 100,
+                    child: Image.asset("assets/images/doraemon_sleeping1.png", height: 270),
+                  ),
+                  Positioned(
+                    top: 310,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      constraints: const BoxConstraints(maxHeight: 350),
+                      child: SingleChildScrollView(
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              _buildTextField(
+                                controller: pocketMoneyController,
+                                label: 'Enter Pocket Money (₹)',
+                              ),
+                              const SizedBox(height: 20),
+                              _buildTextField(
+                                controller: targetSavingsController,
+                                label: 'Enter Target Savings (₹)',
+                                validator: (value) {
+                                  final target = double.tryParse(value ?? '');
+                                  final pocket = double.tryParse(pocketMoneyController.text);
+                                  if (target == null || target < 0)
+                                    return 'Invalid target amount';
+                                  if (pocket != null && target > pocket) {
+                                    return 'Target cannot exceed pocket money';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 20),
+                              ElevatedButton.icon(
+                                onPressed: _submitForm,
+                                icon: const Icon(Icons.save),
+                                label: Text(isEditing ? "Update" : "Save"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.lightBlue.shade600,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 24, vertical: 12),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              )
-            ]
+                ],
+              ),
+            )
+
           ],
-        ),
+        ],
       ),
-   );
+    );
   }
 
   Widget _buildTextField({

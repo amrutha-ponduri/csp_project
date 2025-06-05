@@ -10,6 +10,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:smart_expend/helper_classes/delete_helper.dart';
 import 'package:smart_expend/loading_data/expensemodel.dart';
 import 'package:smart_expend/loading_data/get_data.dart';
+import 'package:smart_expend/pages/monthly_report_page.dart';
 import 'package:smart_expend/pages/monthlychart.dart';
 import 'package:smart_expend/pages/mothstartpage.dart';
 import 'package:smart_expend/pages/profile_page.dart';
@@ -30,7 +31,6 @@ class DailyExpenses extends StatefulWidget {
 class _DailyExpensesState extends State<DailyExpenses> {
   @override
   void initState() {
-    // TODO: implement initState
     BatchDelete bd= BatchDelete();
     bd.batchDelete();
     bd.batchDeleteYears();
@@ -105,7 +105,7 @@ class _DailyExpensesState extends State<DailyExpenses> {
                 ListTile(
                   title: Text('Pie chart'),
                   onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ExpensePieChartPage(),));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => MonthlyReportPage(),));
                   },
                 ),
                 ListTile(
@@ -139,7 +139,7 @@ class _DailyExpensesState extends State<DailyExpenses> {
               final data = doc.data();
               return Expense(
                 title: data['expenseName'],
-                amount: data['expenseValue'],
+                amount: (data['expenseValue'] as num).toDouble(),
                 date: (data['timeStamp'] as Timestamp).toDate(),
                 docReference: doc.reference,
               );
