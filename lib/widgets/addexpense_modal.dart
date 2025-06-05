@@ -257,10 +257,18 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
         .doc(email)
         .collection('streaksDetails')
         .doc('details');
+    DateTime todaysDate = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day);
     var documentSnapshot = await documentReference.get();
     if (documentSnapshot.exists) {
       final data = documentSnapshot.data() as Map<String, dynamic>;
-      lastActiveDate = (data['lastActiveDate'] as Timestamp).toDate();
+      Timestamp? temp = data['lastActiveDate'];
+      if (temp == null) {
+        lastActiveDate = todaysDate;
+      }
+      else {
+        lastActiveDate =
+            (data['lastActiveDate'] ?? todaysDate as Timestamp).toDate();
+      }
       initLastActiveDate = lastActiveDate;
       currentStreak = data['currentStreak'];
       maximumStreak = data['maximumStreak'];
@@ -276,7 +284,7 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
         lastActiveDate = today;
       } else if (lastActiveDate != today) {
         currentStreak = 1;
-        maximumStreak = 1;
+        maximumStreak = max(maximumStreak!,1);
         lastActiveDate = today;
       }
     } else {
