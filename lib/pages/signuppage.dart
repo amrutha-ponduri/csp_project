@@ -1,5 +1,3 @@
-
-
 // ignore_for_file: unused_import
 
 import 'package:flutter/material.dart';
@@ -32,19 +30,19 @@ class RegistrationScreenState extends State<RegistrationScreen> {
   int? age;
   String? phoneNumber;
 
-  File? _image;
+  //File? _image;
   bool _isPasswordVisible = false;
 
-  Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+  // Future<void> _pickImage() async {
+  //   final pickedFile =
+  //       await ImagePicker().pickImage(source: ImageSource.gallery);
 
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
-  }
+  //   if (pickedFile != null) {
+  //     setState(() {
+  //       _image = File(pickedFile.path);
+  //     });
+  //   }
+  // }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
