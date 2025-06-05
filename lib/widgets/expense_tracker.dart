@@ -4,30 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 
-class ExpensePieChartPage extends StatefulWidget {
-  const ExpensePieChartPage({super.key});
+class DoraemonSummaryChart extends StatefulWidget {
+  const DoraemonSummaryChart({
+    super.key,
+  });
 
   @override
-  State<ExpensePieChartPage> createState() => _ExpensePieChartPageState();
+  State<DoraemonSummaryChart> createState() => _DoraemonSummaryChartState();
 }
 
-class _ExpensePieChartPageState extends State<ExpensePieChartPage>
-    with SingleTickerProviderStateMixin {
-  double? expenses;
-  double? savings;
-  double? pocketMoney;
-  final String currency = 'INR';
-
+class _DoraemonSummaryChartState extends State<DoraemonSummaryChart> with SingleTickerProviderStateMixin{
   late AnimationController _animationController;
   late Animation<double> _chartScaleAnimation;
-
+  double? expenses;
+  double?  pocketMoney;
   @override
   void initState() {
-    super.initState();
-    expenses = expenses ?? 0;
-    _animationController = AnimationController(
+    loadData();
+     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 1400),
     );
     _chartScaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(
@@ -35,362 +31,155 @@ class _ExpensePieChartPageState extends State<ExpensePieChartPage>
         curve: Curves.easeOutBack,
       ),
     );
-    loadData();
+    super.initState();
   }
-
-  Future<void> loadData() async {
-    await fetchPocketMoney();
-    await fetchExpenses();
-
-    expenses = expenses ?? 0; // fallback
-    setState(() {
-      // trigger rebuild after data is fetched
-      _animationController.forward();
-    });
-  }
-
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-
-  String formatCurrency(double amount) {
-    final formatter = NumberFormat.simpleCurrency(name: currency);
-    return formatter.format(amount);
-  }
-  int touchedIndex = -1;
   @override
   Widget build(BuildContext context) {
-    final total = pocketMoney ?? 0;
-    final savings = total - expenses!;
-    final expensePercentage = total > 0 ? (expenses! / total) * 100 : 0;
-    final savingsPercentage = total > 0 ? (savings / total) * 100 : 0;
+    DateTime now = DateTime.now();
+    String fullMonthName = DateFormat.MMMM().format(now);
+    if (pocketMoney == null) {
+      return Center(
+        child : Text('Enter pocket money details'),
+      );
+    }
+    expenses = expenses??0;
+    final double savings = pocketMoney! - expenses!;
+    final double expensePercentage =
+        (pocketMoney! > 0) ? (expenses! / pocketMoney!) * 100 : 0;
+    final double savingsPercentage =
+        (pocketMoney! > 0) ? (savings / pocketMoney!) * 100 : 0;
 
-    const borderColor = Color(0xFF003366);
-    const backgroundColor = Color(0xFF74B9FF);
-    final expenseShadowColor = const Color(0xFFF7C948).withOpacity(0.5);
-    final savingsShadowColor = const Color(0xFF1B9CFC).withOpacity(0.5);
-    // if (pocketMoney == null) {
-    //   return Center(child: Text('Fill Pocket Money details to view pie chart'));
-    // }
-    // return Container(
-    //   width: double.infinity,
-    //   height: double.infinity, // full height for full background
-    //   decoration: const BoxDecoration(
-    //     gradient: LinearGradient(
-    //       colors: [Color(0xFF74B9FF), Color(0xFF1B9CFC)],
-    //       begin: Alignment.topLeft,
-    //       end: Alignment.bottomRight,
-    //     ),
-    //   ),
-    //   child: SafeArea(
-    //     child: Center(
-    //       child: SingleChildScrollView(
-    //         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
-    //         child: Column(
-    //           mainAxisSize: MainAxisSize.min,
-    //           children: [
-    //             ScaleTransition(
-    //               scale: _chartScaleAnimation,
-    //               child: Stack(
-    //                 alignment: Alignment.center,
-    //                 children: [
-    //                   SizedBox(
-    //                       height: 240,
-    //                       width: 240,
-    //                       child: PieChart(
-    //                         PieChartData(
-    //                           sectionsSpace: 0,
-    //                           centerSpaceRadius: 40,
-    //                           centerSpaceColor: backgroundColor,
-    //                           pieTouchData: PieTouchData(
-    //                             touchCallback:
-    //                                 (FlTouchEvent event, pieTouchResponse) {
-    //                               setState(() {
-    //                                 if (!event.isInterestedForInteractions ||
-    //                                     pieTouchResponse == null ||
-    //                                     pieTouchResponse.touchedSection ==
-    //                                         null) {
-    //                                   touchedIndex = -1;
-    //                                   return;
-    //                                 }
-    //                                 touchedIndex = pieTouchResponse
-    //                                     .touchedSection!.touchedSectionIndex;
-    //                               });
-    //                             },
-    //                           ),
-    //                           sections: List.generate(2, (index) {
-    //                             final isTouched = index == touchedIndex;
-    //                             final isExpense = index == 0;
-    //                             final value = isExpense ? expenses! : savings;
-    //                             final percentage =
-    //                                 ((value / (pocketMoney ?? 1)) * 100)
-    //                                     .toStringAsFixed(0);
-    //                             final color = isExpense
-    //                                 ? const Color(0xFFF7C948)
-    //                                 : const Color(0xFF1B9CFC);
-
-    //                             return PieChartSectionData(
-    //                               color: color,
-    //                               value: value,
-    //                               radius: isTouched ? 85 : 75,
-    //                               title: isTouched
-    //                                   ? '${formatCurrency(value)}'
-    //                                   : '$percentage%',
-    //                               borderSide:
-    //                                   BorderSide(color: borderColor, width: 4),
-    //                               titleStyle: TextStyle(
-    //                                 fontSize: isTouched ? 20 : 18,
-    //                                 fontWeight: FontWeight.bold,
-    //                                 color:
-    //                                     isExpense ? Colors.black : Colors.white,
-    //                               ),
-    //                             );
-    //                           }),
-    //                         ),
-    //                       )),
-    //                   SizedBox(
-    //                     height: 240,
-    //                     width: 240,
-    //                     child: PieChart(
-    //                       PieChartData(
-    //                         sectionsSpace: 0,
-    //                         centerSpaceRadius: 40,
-    //                         centerSpaceColor: backgroundColor,
-    //                         sections: [
-    //                           PieChartSectionData(
-    //                             color: const Color(0xFFF7C948),
-    //                             value: expenses,
-    //                             title:
-    //                                 '${expensePercentage.toStringAsFixed(0)}%',
-    //                             radius: 75,
-    //                             borderSide:
-    //                                 BorderSide(color: borderColor, width: 4),
-    //                             titleStyle: const TextStyle(
-    //                               fontSize: 22,
-    //                               fontWeight: FontWeight.bold,
-    //                               color: Colors.black,
-    //                             ),
-    //                           ),
-    //                           PieChartSectionData(
-    //                             color: const Color(0xFF1B9CFC),
-    //                             value: savings,
-    //                             title:
-    //                                 '${savingsPercentage.toStringAsFixed(0)}%',
-    //                             radius: 75,
-    //                             borderSide:
-    //                                 BorderSide(color: borderColor, width: 4),
-    //                             titleStyle: const TextStyle(
-    //                               fontSize: 22,
-    //                               fontWeight: FontWeight.bold,
-    //                               color: Colors.white,
-    //                             ),
-    //                           ),
-    //                         ],
-    //                       ),
-    //                     ),
-    //                   ),
-    //                   SizedBox(
-    //                     height: 80,
-    //                     width: 80,
-    //                     child: Image.asset(
-    //                       "assets/images/doraemon.png",
-    //                       fit: BoxFit.contain,
-    //                     ),
-    //                   ),
-    //                 ],
-    //               ),
-    //             ),
-    //             const SizedBox(height: 30),
-    //             Container(
-    //               padding:
-    //                   const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-    //               decoration: BoxDecoration(
-    //                 color: Colors.white.withOpacity(0.3),
-    //                 borderRadius: BorderRadius.circular(20),
-    //                 boxShadow: [
-    //                   BoxShadow(
-    //                     color: Colors.black.withOpacity(0.1),
-    //                     blurRadius: 8,
-    //                     offset: const Offset(0, 4),
-    //                   ),
-    //                 ],
-    //               ),
-    //               child: Text(
-    //                 expenses! > savings
-    //                     ? "Try saving more, friend! 😟"
-    //                     : "Great job saving! 🥳",
-    //                 style: const TextStyle(
-    //                   fontSize: 20,
-    //                   fontWeight: FontWeight.bold,
-    //                   color: Colors.white,
-    //                   shadows: [
-    //                     Shadow(
-    //                       color: Colors.black45,
-    //                       offset: Offset(1, 1),
-    //                       blurRadius: 3,
-    //                     )
-    //                   ],
-    //                 ),
-    //                 textAlign: TextAlign.center,
-    //               ),
-    //             ),
-    //             const SizedBox(height: 20),
-    //           ],
-    //         ),
-    //       ),
-    //     ),
-    //   ),
-    // );
-    return Scaffold(
-      body: pocketMoney==null?Center(child: Text('Fill Pocket Money details to view pie chart')): Container(
-        width: double.infinity,
-        height: double.infinity, // full height for full background
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF74B9FF), Color(0xFF1B9CFC)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ScaleTransition(
-                    scale: _chartScaleAnimation,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        SizedBox(
-                          height: 240,
-                          width: 240,
-                          child: PieChart(
-                            PieChartData(
-                              sectionsSpace: 0,
-                              centerSpaceRadius: 40,
-                              centerSpaceColor: backgroundColor,
-                              sections: [
-                                PieChartSectionData(
-                                  color: expenseShadowColor,
-                                  value: expenses,
-                                  radius: 80,
-                                  borderSide:
-                                      BorderSide(color: borderColor, width: 4),
-                                  showTitle: false,
-                                ),
-                                PieChartSectionData(
-                                  color: savingsShadowColor,
-                                  value: savings,
-                                  radius: 80,
-                                  borderSide:
-                                      BorderSide(color: borderColor, width: 4),
-                                  showTitle: false,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 240,
-                          width: 240,
-                          child: PieChart(
-                            PieChartData(
-                              sectionsSpace: 0,
-                              centerSpaceRadius: 40,
-                              centerSpaceColor: backgroundColor,
-                              sections: [
-                                PieChartSectionData(
-                                  color: const Color(0xFFF7C948),
-                                  value: expenses,
-                                  title:
-                                      '${expensePercentage.toStringAsFixed(0)}%',
-                                  radius: 75,
-                                  borderSide:
-                                      BorderSide(color: borderColor, width: 4),
-                                  titleStyle: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                PieChartSectionData(
-                                  color: const Color(0xFF1B9CFC),
-                                  value: savings,
-                                  title:
-                                      '${savingsPercentage.toStringAsFixed(0)}%',
-                                  radius: 75,
-                                  borderSide:
-                                      BorderSide(color: borderColor, width: 4),
-                                  titleStyle: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 80,
-                          width: 80,
-                          child: Image.asset(
-                            "assets/images/doraemon.png",
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      expenses! > savings
-                          ? "Try saving more, friend! 😟"
-                          : "Great job saving! 🥳",
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black45,
-                            offset: Offset(1, 1),
-                            blurRadius: 3,
-                          )
-                        ],
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+    return Padding(
+      padding: const EdgeInsets.all(15.0),
+      child: Container(
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color.fromARGB(255, 234, 239, 244), Color.fromARGB(255, 108, 157, 244)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ]),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Doraemon Face
+            SizedBox(
+              height: 100,
+              child: Image.asset("assets/images/doraemon.png"),
+            ),
+      
+            const SizedBox(height: 16),
+      
+            // Title
+            Text(
+              "$fullMonthName Summary",
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+                color: Colors.amber,
+                shadows: [
+                  Shadow(
+                      color: Colors.black45, offset: Offset(1, 1), blurRadius: 3)
                 ],
               ),
             ),
-          ),
+      
+            const SizedBox(height: 32),
+      
+            // Pie Chart
+            ScaleTransition(
+              scale: _chartScaleAnimation,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    height: 220,
+                    width: 220,
+                    child: PieChart(
+                      PieChartData(
+                        sectionsSpace: 0,
+                        centerSpaceRadius: 70,
+                        sections: [
+                          PieChartSectionData(
+                            value: expenses,
+                            color: const Color(0xFFF7C948),
+                            radius: 70,
+                            title: '${expensePercentage.toStringAsFixed(0)}%',
+                            titleStyle: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          PieChartSectionData(
+                            value: savings,
+                            color: const Color(0xFF1B9CFC),
+                            radius: 70,
+                            title: '${savingsPercentage.toStringAsFixed(0)}%',
+                            titleStyle: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                    
+                  // Center Pancake icon
+                  SizedBox(
+                    height: 160,
+                    width: 160,
+                    child: Image.asset("assets/images/doracake.png"),
+                  ),
+                ],
+              ),
+            ),
+      
+            const SizedBox(height: 40),
+      
+            // Expenses Text
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(width: 8),
+                Text(
+                  "Expenses: ₹${expenses!.toStringAsFixed(2)}",
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
-
+  Future<void> loadData() async{
+    await fetchExpenses();
+    await fetchPocketMoney();
+    setState(() {
+      // trigger rebuild after data is fetched
+      _animationController.forward();
+    });
+  }
   Future<void> fetchExpenses() async {
     final db = FirebaseFirestore.instance;
     final year = DateTime.now().year;
@@ -404,7 +193,7 @@ class _ExpensePieChartPageState extends State<ExpensePieChartPage>
         .doc(docPath);
     final snapshot = await documentReference.get();
     final data = snapshot.data() as Map<String, dynamic>;
-    expenses = await data['expenseValue'];
+    expenses = await (data['expenseValue'] as num).toDouble();
   }
 
   Future<void> fetchPocketMoney() async {
@@ -421,6 +210,6 @@ class _ExpensePieChartPageState extends State<ExpensePieChartPage>
         .doc(docPath);
     final snapshot = await documentReference.get();
     final data = snapshot.data() as Map<String, dynamic>;
-    pocketMoney = await data['pocketMoney'] as double;
+    pocketMoney = await (data['pocketMoney'] as num).toDouble();
   }
 }
