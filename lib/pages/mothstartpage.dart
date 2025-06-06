@@ -89,10 +89,6 @@ class _MonthStartPageState extends State<MonthStartPage> {
 
   @override
   Widget build(BuildContext context) {
-    final MainAxisAlignment alignment =
-        pocketMoney != null && targetSavings != null && !isEditing
-            ? MainAxisAlignment.spaceBetween
-            : MainAxisAlignment.end;
     return Scaffold(
       backgroundColor: Colors.lightBlue.shade50,
       appBar: AppBar(
@@ -187,8 +183,9 @@ class _MonthStartPageState extends State<MonthStartPage> {
                                 validator: (value) {
                                   final target = double.tryParse(value ?? '');
                                   final pocket = double.tryParse(pocketMoneyController.text);
-                                  if (target == null || target < 0)
+                                  if (target == null || target < 0){
                                     return 'Invalid target amount';
+                                  }
                                   if (pocket != null && target > pocket) {
                                     return 'Target cannot exceed pocket money';
                                   }

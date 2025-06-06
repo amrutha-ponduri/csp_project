@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 class MonthEndPage extends StatefulWidget {
   final double savedAmount;
   final double goalAmount;
-  final double monthlySavedAmount; // 👈 New field added
-
+  final String month;
+  final int year;
   const MonthEndPage({
     super.key,
-    required this.savedAmount,
     required this.goalAmount,
-    required this.monthlySavedAmount,
+    required this.savedAmount,
+    required this.month,
+    required this.year,
   });
 
   @override
@@ -41,15 +42,15 @@ class _MonthEndPageState extends State<MonthEndPage>
   @override
   Widget build(BuildContext context) {
     final double progress = widget.savedAmount / widget.goalAmount;
-    final int monthsTaken =
-        (widget.savedAmount / widget.monthlySavedAmount).ceil();
+    // final int monthsTaken =
+    //     (widget.savedAmount / widget.savedAmount).ceil();
 
     final String resultMessage = widget.savedAmount >= widget.goalAmount
-        ? "You can buy your desired product 🎉"
-        : "You need more money to buy your desired product 💰";
+        ? "You have reached the goal 🎉"
+        : "Ohh just a miss could have saved more 💰";
 
-    final DateTime now = DateTime.now();
-    final String monthName = _getMonthName(now.month);
+    // final DateTime now = DateTime.now();
+    final String monthName = widget.month;
 
     return Scaffold(
       appBar: AppBar(
@@ -85,7 +86,7 @@ class _MonthEndPageState extends State<MonthEndPage>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        "$monthName ${now.year}",
+                        "$monthName ${widget.year}",
                         style: const TextStyle(
                             fontSize: 26, fontWeight: FontWeight.bold),
                       ),
@@ -115,15 +116,15 @@ class _MonthEndPageState extends State<MonthEndPage>
                             fontSize: 18, fontWeight: FontWeight.w500),
                       ),
                       const SizedBox(height: 15),
-                      Text(
-                        "It took you $monthsTaken month(s) to save this amount.",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontStyle: FontStyle.italic,
-                          color: Colors.black87,
-                        ),
-                      ),
+                      // Text(
+                      //   "It took you $monthsTaken month(s) to save this amount.",
+                      //   textAlign: TextAlign.center,
+                      //   style: const TextStyle(
+                      //     fontSize: 16,
+                      //     fontStyle: FontStyle.italic,
+                      //     color: Colors.black87,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -135,21 +136,21 @@ class _MonthEndPageState extends State<MonthEndPage>
     );
   }
 
-  String _getMonthName(int month) {
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December"
-    ];
-    return months[month - 1];
-  }
+  // String _getMonthName(int month) {
+  //   const months = [
+  //     "January",
+  //     "February",
+  //     "March",
+  //     "April",
+  //     "May",
+  //     "June",
+  //     "July",
+  //     "August",
+  //     "September",
+  //     "October",
+  //     "November",
+  //     "December"
+  //   ];
+  //   return months[month - 1];
+  // }
 }

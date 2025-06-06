@@ -123,197 +123,208 @@ class _StreaksPageState extends State<StreaksPage> {
     final canGoBack = selectedMonth.isAfter(signupMonthStart);
     final canGoForward = selectedMonth.isBefore(currentMonthStart);
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Doraemon Monthly Start",
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.lightBlue.shade700,
+        centerTitle: true,
+      ),
       backgroundColor: const Color(0xFFD5EDF4),
       body: signUpDate == null
           ? Center(child: CircularProgressIndicator())
-          : SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    const Text(
-                      'HELLO,\nWELCOME BACK!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+          : Column(
+            mainAxisAlignment:  MainAxisAlignment.center,
+            children: [SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      const Text(
+                        'HELLO,\nWELCOME BACK!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Image.asset(
-                          'assets/images/doraemon_wallet.png',
-                          height: 80,
-                          fit: BoxFit.contain,
-                        ),
-                        Image.asset(
-                          'assets/images/nobita_money.png',
-                          height: 80,
-                          fit: BoxFit.contain,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        InfoCard(
-                          title: "EXPENSES",
-                          subtitle:
-                              "🔥 $currentStreak days continuous streak",
-                          background: const Color(0xFFFFE6B3),
-                          width: screenWidth * 0.42,
-                        ),
-                        InfoCard(
-                          title: "MAXIMUM STREAK",
-                          subtitle: "✅ $maximumStreaks days",
-                          background: const Color(0xFFCCE5FF),
-                          width: screenWidth * 0.42,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.arrow_left,
-                              size: 32,
-                              color: selectedMonth.isAfter(signupMonthStart) ? arrowColor : Colors.grey),
-                          onPressed: canGoBack
-                              ? () {
-                                  _changeMonth(-1);
-                                }
-                              : null,
-                        ),
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          child: Text(
-                            DateFormat.yMMMM().format(selectedMonth),
-                            key: ValueKey(selectedMonth),
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.arrow_right,
-                              size: 32,
-                              color: canGoForward ? arrowColor : Colors.grey),
-                          onPressed: canGoForward
-                              ? () {
-                                  _changeMonth(1);
-                                }
-                              : null,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      height: gridHeight,
-                      child: Row(
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Expanded(
-                            flex: 3,
-                            child: isLoading
-                                ? const Center(
-                                    child: CircularProgressIndicator())
-                                : GridView.builder(
-                                    //shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: daysInMonth,
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 7,
-                                      crossAxisSpacing: spacing,
-                                      mainAxisSpacing: spacing,
-                                      childAspectRatio: 1,
-                                    ),
-                                    itemBuilder: (context, index) {
-                                      final day = index + 1;
-                                      final date = DateTime(
-                                          selectedMonth.year,
-                                          selectedMonth.month,
-                                          day);
-                                      final today = DateTime(
-                                          DateTime.now().year,
-                                          DateTime.now().month,
-                                          DateTime.now().day);
-                                      final isFuture =
-                                          date.isAfter(DateTime.now());
-                                      final isBeforeSignUp =
-                                          signUpDate != null &&
-                                              date.isBefore(signUpDate!.subtract(Duration(days:1)));
-                                      final completed =
-                                          currentStreakData[day] ?? false;
-                                      final isToday = DateTime.now().year ==
-                                              selectedMonth.year &&
-                                          DateTime.now().month ==
-                                              selectedMonth.month &&
-                                          DateTime.now().day == day;
-
-                                      String imageAsset;
-                                      Color labelColor;
-                                      Color textColor = Colors.white;
-                                      if (isFuture ||
-                                          isBeforeSignUp ||
-                                          (isToday &&
-                                              (lastActiveDate != today))) {
-                                        imageAsset =
-                                            'assets/images/neutral_doraemon.png';
-                                        labelColor = Colors.white;
-                                        textColor = Colors.black;
-                                      } else {
-                                        if (completed) {
-                                          imageAsset =
-                                              'assets/images/happy_doraemon.png';
-                                          labelColor = const Color.fromARGB(
-                                              255, 5, 82, 3);
-                                        } else {
-                                          imageAsset =
-                                              'assets/images/sad_doraemon.png';
-                                          labelColor = const Color.fromARGB(
-                                              255, 189, 17, 5);
-                                        }
-                                      }
-
-                                      return DayStreakBadge(
-                                        day: day,
-                                        completed: completed,
-                                        doraemonBlue: doraemonBlue,
-                                        doraemonRed: doraemonRed,
-                                        isToday: isToday,
-                                        imageAsset: imageAsset,
-                                        labelColor: labelColor,
-                                        textColor: textColor,
-                                      );
-                                    },
-                                  ),
+                          Image.asset(
+                            'assets/images/doraemon_wallet.png',
+                            height: 80,
+                            fit: BoxFit.contain,
                           ),
-                          Expanded(
-                            flex: 1,
-                            child: Align(
-                              alignment: Alignment.bottomRight,
-                              child: Image.asset(
-                                'assets/images/shizuka.png',
-                                height: gridHeight - 10,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
+                          Image.asset(
+                            'assets/images/nobita_money.png',
+                            height: 80,
+                            fit: BoxFit.contain,
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          InfoCard(
+                            title: "EXPENSES",
+                            subtitle:
+                                "🔥 $currentStreak days continuous streak",
+                            background: const Color(0xFFFFE6B3),
+                            width: screenWidth * 0.42,
+                          ),
+                          InfoCard(
+                            title: "MAXIMUM STREAK",
+                            subtitle: "✅ $maximumStreaks days",
+                            background: const Color(0xFFCCE5FF),
+                            width: screenWidth * 0.42,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.arrow_left,
+                                size: 32,
+                                color: selectedMonth.isAfter(signupMonthStart) ? arrowColor : Colors.grey),
+                            onPressed: canGoBack
+                                ? () {
+                                    _changeMonth(-1);
+                                  }
+                                : null,
+                          ),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            child: Text(
+                              DateFormat.yMMMM().format(selectedMonth),
+                              key: ValueKey(selectedMonth),
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.arrow_right,
+                                size: 32,
+                                color: canGoForward ? arrowColor : Colors.grey),
+                            onPressed: canGoForward
+                                ? () {
+                                    _changeMonth(1);
+                                  }
+                                : null,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      SingleChildScrollView(
+                        child: SizedBox(
+                          height: gridHeight,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 3,
+                                child: isLoading
+                                    ? const Center(
+                                        child: CircularProgressIndicator())
+                                    : GridView.builder(
+                                        //shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        itemCount: daysInMonth,
+                                        gridDelegate:
+                                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 7,
+                                          crossAxisSpacing: spacing,
+                                          mainAxisSpacing: spacing,
+                                          childAspectRatio: 1,
+                                        ),
+                                        itemBuilder: (context, index) {
+                                          final day = index + 1;
+                                          final date = DateTime(
+                                              selectedMonth.year,
+                                              selectedMonth.month,
+                                              day);
+                                          final today = DateTime(
+                                              DateTime.now().year,
+                                              DateTime.now().month,
+                                              DateTime.now().day);
+                                          final isFuture =
+                                              date.isAfter(DateTime.now());
+                                          final isBeforeSignUp =
+                                              signUpDate != null &&
+                                                  date.isBefore(signUpDate!.subtract(Duration(days:1)));
+                                          final completed =
+                                              currentStreakData[day] ?? false;
+                                          final isToday = DateTime.now().year ==
+                                                  selectedMonth.year &&
+                                              DateTime.now().month ==
+                                                  selectedMonth.month &&
+                                              DateTime.now().day == day;
+
+                                          String imageAsset;
+                                          Color labelColor;
+                                          Color textColor = Colors.white;
+                                          if (isFuture ||
+                                              isBeforeSignUp ||
+                                              (isToday &&
+                                                  (lastActiveDate != today))) {
+                                            imageAsset =
+                                                'assets/images/neutral_doraemon.png';
+                                            labelColor = Colors.white;
+                                            textColor = Colors.black;
+                                          } else {
+                                            if (completed) {
+                                              imageAsset =
+                                                  'assets/images/happy_doraemon.png';
+                                              labelColor = const Color.fromARGB(
+                                                  255, 5, 82, 3);
+                                            } else {
+                                              imageAsset =
+                                                  'assets/images/sad_doraemon.png';
+                                              labelColor = const Color.fromARGB(
+                                                  255, 189, 17, 5);
+                                            }
+                                          }
+
+                                          return DayStreakBadge(
+                                            day: day,
+                                            completed: completed,
+                                            doraemonBlue: doraemonBlue,
+                                            doraemonRed: doraemonRed,
+                                            isToday: isToday,
+                                            imageAsset: imageAsset,
+                                            labelColor: labelColor,
+                                            textColor: textColor,
+                                          );
+                                        },
+                                      ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: Image.asset(
+                                    'assets/images/shizuka.png',
+                                    height: gridHeight - 10,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
+              ),]
+          ),
     );
   }
 

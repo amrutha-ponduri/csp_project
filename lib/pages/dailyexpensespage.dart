@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:clay_containers/clay_containers.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_expend/helper_classes/delete_helper.dart';
 import 'package:smart_expend/loading_data/expensemodel.dart';
 import 'package:smart_expend/loading_data/get_data.dart';
@@ -45,15 +46,15 @@ class _DailyExpensesState extends State<DailyExpenses> {
     String? emailAddress = user!.email;
     return Scaffold(
       appBar: AppBar(
-        leading: Builder(
-          builder: (context) {
-            return IconButton(
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-                icon: Icon(Icons.menu));
-          },
-        ),
+        // leading: Builder(
+        //   builder: (context) {
+        //     return IconButton(
+        //         onPressed: () {
+        //           Scaffold.of(context).openDrawer();
+        //         },
+        //         icon: Icon(Icons.menu));
+        //   },
+        // ),
         actions: [
           IconButton(onPressed: (){
             Navigator.push(context, MaterialPageRoute(builder: (context) => StreaksPage(),));
@@ -70,56 +71,59 @@ class _DailyExpensesState extends State<DailyExpenses> {
         title: const Text("Daily Expenses"),
         centerTitle: true,
       ),
-      drawer: Drawer(
-        width: 220, // Custom width
-        child: SafeArea(
-          child: Align(
-            alignment: Alignment.topLeft,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: Icon(Icons.savings, color: Colors.lightBlue),
-                  title: Text('Store Pocket Money',
-                      style: TextStyle(color: Colors.blue)),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const MonthStartPage()),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.bar_chart, color: Colors.lightBlue),
-                  title: Text('View Yearly chart',
-                      style: TextStyle(color: Colors.blue)),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const YearlyChartPage()),
-                    );
-                  },
-                ),
-                ListTile(
-                  title: Text('Pie chart'),
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => MonthlyReportPage(),));
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.logout),
-                  title: Text('Log Out'),
-                  onTap: () async{
-                    await FirebaseAuth.instance.signOut();
-                  },
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
+      // drawer: Drawer(
+      //   width: 220, // Custom width
+      //   child: SafeArea(
+      //     child: Align(
+      //       alignment: Alignment.topLeft,
+      //       child: Column(
+      //         mainAxisSize: MainAxisSize.min,
+      //         children: [
+      //           ListTile(
+      //             leading: Icon(Icons.savings, color: Colors.lightBlue),
+      //             title: Text('Store Pocket Money',
+      //                 style: TextStyle(color: Colors.blue)),
+      //             onTap: () {
+      //               Navigator.push(
+      //                 context,
+      //                 MaterialPageRoute(
+      //                     builder: (context) => const MonthStartPage()),
+      //               );
+      //             },
+      //           ),
+      //           ListTile(
+      //             leading: Icon(Icons.bar_chart, color: Colors.lightBlue),
+      //             title: Text('View Yearly chart',
+      //                 style: TextStyle(color: Colors.blue)),
+      //             onTap: () {
+      //               Navigator.push(
+      //                 context,
+      //                 MaterialPageRoute(
+      //                     builder: (context) => const YearlyChartPage()),
+      //               );
+      //             },
+      //           ),
+      //           ListTile(
+      //             title: Text('Pie chart'),
+      //             onTap: (){
+      //               Navigator.push(context, MaterialPageRoute(builder: (context) => MonthlyReportPage(),));
+      //             },
+      //           ),
+      //           ListTile(
+      //             leading: Icon(Icons.logout),
+      //             title: Text('Log Out'),
+      //             onTap: () async{
+      //               final prefs = await SharedPreferences.getInstance();
+      //               await prefs.clear();
+      //               await FirebaseAuth.instance.signOut();
+      //
+      //             },
+      //           )
+      //         ],
+      //       ),
+      //     ),
+      //   ),
+      // ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('users')

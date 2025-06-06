@@ -19,29 +19,29 @@ class TargetPageState extends State<TargetPage> {
   DateTime? _selectedDate;
   //File? _imageFile;
 
-  final Map<String, String> _currencies = {
-    'USD (\$)': '\$',
-    'EUR (€)': '€',
-    'INR (₹)': '₹',
-    'GBP (£)': '£',
-    'JPY (¥)': '¥',
-  };
+  // final Map<String, String> _currencies = {
+  //   'USD (\$)': '\$',
+  //   'EUR (€)': '€',
+  //   'INR (₹)': '₹',
+  //   'GBP (£)': '£',
+  //   'JPY (¥)': '¥',
+  // };
 
-  String _selectedCurrency = 'USD (\$)';
+  // String _selectedCurrency = 'USD (\$)';
 
-  Future<void> _pickDate() async {
-    DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
-  }
+  // Future<void> _pickDate() async {
+  //   DateTime? picked = await showDatePicker(
+  //     context: context,
+  //     initialDate: DateTime.now(),
+  //     firstDate: DateTime.now(),
+  //     lastDate: DateTime(2100),
+  //   );
+  //   if (picked != null) {
+  //     setState(() {
+  //       _selectedDate = picked;
+  //     });
+  //   }
+  // }
 
   void _handleAdd() {
     if (_formKey.currentState!.validate()) {
@@ -51,10 +51,8 @@ class TargetPageState extends State<TargetPage> {
       }
 
       final newTarget = <String, dynamic>{
-        'product': _productController.text,
-        'amount': _amountController.text,
-        'currency': _selectedCurrency,
-        'date': _selectedDate,
+        'targetProduct': _productController.text.toString(),
+        'targetAmount': double.parse(_amountController.text.toString()),
       };
       FirebaseFirestore db = FirebaseFirestore.instance;
       DocumentReference documentReference = db
@@ -101,8 +99,6 @@ class TargetPageState extends State<TargetPage> {
 
   @override
   Widget build(BuildContext context) {
-    final currencySymbol = _currencies[_selectedCurrency] ?? '';
-
     return Scaffold(
       body: Container(
         height: double.infinity,
@@ -151,44 +147,44 @@ class TargetPageState extends State<TargetPage> {
                                   : null,
                             ),
                             const SizedBox(height: 20),
-                            GestureDetector(
-                              onTap: _pickDate,
-                              child: AbsorbPointer(
-                                child: _buildTextField(
-                                  label: _selectedDate == null
-                                      ? 'By when do you want to buy?'
-                                      : 'Buy by: ${DateFormat('dd-MM-yyyy').format(_selectedDate!)}',
-                                  icon: Icons.calendar_today,
-                                  validator: (_) => null,
-                                ),
-                              ),
-                            ),
+                            // GestureDetector(
+                            //   onTap: _pickDate,
+                            //   child: AbsorbPointer(
+                            //     child: _buildTextField(
+                            //       label: _selectedDate == null
+                            //           ? 'By when do you want to buy?'
+                            //           : 'Buy by: ${DateFormat('dd-MM-yyyy').format(_selectedDate!)}',
+                            //       icon: Icons.calendar_today,
+                            //       validator: (_) => null,
+                            //     ),
+                            //   ),
+                            // ),
                             const SizedBox(height: 20),
                             Row(
                               children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: DropdownButtonFormField<String>(
-                                    value: _selectedCurrency,
-                                    items: _currencies.entries.map((entry) {
-                                      return DropdownMenuItem<String>(
-                                        value: entry.key,
-                                        child: Text(entry.value),
-                                      );
-                                    }).toList(),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedCurrency = value!;
-                                      });
-                                    },
-                                    decoration: InputDecoration(
-                                      labelText: 'Currency',
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                    ),
-                                  ),
-                                ),
+                                // Expanded(
+                                //   flex: 2,
+                                //   child: DropdownButtonFormField<String>(
+                                //     value: _selectedCurrency,
+                                //     items: _currencies.entries.map((entry) {
+                                //       return DropdownMenuItem<String>(
+                                //         value: entry.key,
+                                //         child: Text(entry.value),
+                                //       );
+                                //     }).toList(),
+                                //     onChanged: (value) {
+                                //       setState(() {
+                                //         _selectedCurrency = value!;
+                                //       });
+                                //     },
+                                //     decoration: InputDecoration(
+                                //       labelText: 'Currency',
+                                //       border: OutlineInputBorder(
+                                //           borderRadius:
+                                //               BorderRadius.circular(10)),
+                                //     ),
+                                //   ),
+                                // ),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   flex: 3,

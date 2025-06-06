@@ -4,11 +4,18 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
 import 'package:smart_expend/pages/dailychart.dart';
+import 'package:smart_expend/pages/monthly_report_page.dart';
+import 'package:smart_expend/pages/monthlychart.dart';
+import 'package:smart_expend/pages/mothstartpage.dart';
+
+import '../widgets/profile_info_card.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -71,6 +78,12 @@ class ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     Map<String, dynamic>? userDetails;
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Doraemon Monthly Start",
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.lightBlue.shade700,
+        centerTitle: true,
+      ),
       body: FutureBuilder(
           future: getData,
           builder: (context, snapshot) {
@@ -174,10 +187,63 @@ class ProfilePageState extends State<ProfilePage> {
                         value: _phone,
                         icon: Icons.phone,
                       ),
+                      SizedBox(height: 10),
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MonthlyReportPage()));
+                        },
+                        child: ProfileInfoCard(
+                          value: "",
+                          title: 'View Monthly report',
+                          icon: Icons.line_axis,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => YearlyChartPage()));
+                        },
+                        child: ProfileInfoCard(
+                          value: "",
+                          title: 'View Yearly Report',
+                          icon: Icons.bar_chart,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => MonthStartPage()));
+                          },
+                          child: ProfileInfoCard(
+                              title: 'Store Pocket money',
+                              value: "",
+                              icon: Icons.currency_rupee)
+                      ),
+                      SizedBox(height: 10),
+                      InkWell(
+                          onTap: () async{
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.clear();
+                            await FirebaseAuth.instance.signOut();
+                            Navigator.pop(context);
+                          },
+                          child: ProfileInfoCard(
+                              title: 'Log out',
+                              value: "",
+                              icon: Icons.logout_outlined)
+                      ),
                     ],
                   ),
                 ),
-                DailyExpenseChart(),
               ],
             );
           }),
@@ -200,29 +266,4 @@ Future<Map<String, dynamic>?> getUserData() async {
 }
 
 // Custom Widget for Profile Information
-class ProfileInfoCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
 
-  const ProfileInfoCard({
-    super.key,
-    required this.title,
-    required this.value,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shadowColor: Colors.deepPurpleAccent.withOpacity(0.3),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: ListTile(
-        leading: Icon(icon, color: Colors.deepPurple),
-        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(value),
-      ),
-    );
-  }
-}
