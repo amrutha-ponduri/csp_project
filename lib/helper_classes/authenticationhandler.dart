@@ -71,7 +71,7 @@ class _AuthenticateCheckState extends State<AuthenticateCheck> {
     final prefs = await SharedPreferences.getInstance();
     final today = DateTime.now();
 
-    if (today.day != 6) return null;
+    if (today.day != 1) return null;
 
     final currentMonth = today.month;
     final currentYear = today.year;
