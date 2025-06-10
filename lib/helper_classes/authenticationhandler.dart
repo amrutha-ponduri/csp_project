@@ -1,13 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../pages/dailyexpensespage.dart';
-import '../pages/monthendpage.dart';
-import '../pages/signinpage.dart';
-import 'load_details_methods.dart';
+import '../pages/daily_expenses_page.dart';
+import '../pages/month_end_page.dart';
+import '../pages/signin_page.dart';
+import '../loading_data/load_details_methods.dart';
 
 class AuthenticateCheck extends StatefulWidget {
   const AuthenticateCheck({super.key});
@@ -37,7 +35,7 @@ class _AuthenticateCheckState extends State<AuthenticateCheck> {
               if (snapshot.hasData && snapshot.data != null) {
                 // Trigger page push
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigator.of(context).push(
+                  Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (context) => MonthEndPage(
                         goalAmount: snapshot.data!['goalAmount'],
@@ -55,8 +53,6 @@ class _AuthenticateCheckState extends State<AuthenticateCheck> {
                 // While waiting for MonthEndPage to pop, show something minimal
                 return const SizedBox.shrink();
               }
-
-
               return const DailyExpenses();
             },
           );
@@ -91,7 +87,7 @@ class _AuthenticateCheckState extends State<AuthenticateCheck> {
     final expenses = await loader.fetchMonthlyExpensesDetails(month: prevMonth, year: prevYear);
     final pocket = await loader.fetchPocketMoneyDetails(month: prevMonth, year: prevYear);
 
-    if (expenses.isEmpty || pocket.isEmpty) return null;
+    if (expenses.isEmpty || pocket == null) return null;
 
     return {
       'goalAmount': pocket['targetSavings'],

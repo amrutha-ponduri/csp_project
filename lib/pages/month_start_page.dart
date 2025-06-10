@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:smart_expend/loading_data/load_details_methods.dart';
+import 'package:smart_expend/loading_data/set_details_methods.dart';
 
 class MonthStartPage extends StatefulWidget {
   const MonthStartPage({super.key});
@@ -47,6 +49,12 @@ class _MonthStartPageState extends State<MonthStartPage> {
       {required double pocket, required double target}) async {
     final email = FirebaseAuth.instance.currentUser?.email;
     if (email == null) return;
+    LoadDetailsMethods loadDetailsMethods = LoadDetailsMethods();
+    double initPocketMoney = 0;
+    Map<String, dynamic>? initPocketMoneyDetails = await loadDetailsMethods.fetchPocketMoneyDetails(month: DateTime.now().month, year: DateTime.now().year);
+    if (initPocketMoneyDetails != null) {
+      initPocketMoney = (initPocketMoneyDetails['pocketMoney'] as num).toDouble();
+    }
     final docRef = FirebaseFirestore.instance
         .collection('users')
         .doc(email)
@@ -57,6 +65,21 @@ class _MonthStartPageState extends State<MonthStartPage> {
       'targetSavings': target,
       'month': DateFormat('MMM-yyyy').format(DateTime.now()),
     });
+    Map<String, dynamic>? currentSavingsData = await loadDetailsMethods.getCurrentSavings();
+    double updatedSavings;
+    DateTime monthStamp = DateTime(DateTime.now().year, DateTime.now().month);
+    if (currentSavingsData == null) {
+      updatedSavings = pocket;
+    }
+    else {
+      updatedSavings = (currentSavingsData['savings'] as num).toDouble()- initPocketMoney + pocket; 
+    }
+    Map<String, dynamic> updatedSavingsDetails = <String, dynamic> {
+      'savings' : updatedSavings,
+      'month' : monthStamp,
+    };
+    SetDetailsMethods setDetailsMethods = SetDetailsMethods();
+    setDetailsMethods.updateCurrentSavings(updatedCurrentSavings : updatedSavingsDetails);
     setState(() {
       pocketMoney = pocket;
       targetSavings = target;
@@ -151,8 +174,9 @@ class _MonthStartPageState extends State<MonthStartPage> {
                 ],
               ),
             )
-
-          ] else ...[
+      
+          ] 
+          else ...[
             SizedBox(
               height: MediaQuery.of(context).size.height - 250, // adjust based on your screen
               child: Stack(
@@ -213,7 +237,7 @@ class _MonthStartPageState extends State<MonthStartPage> {
                 ],
               ),
             )
-
+      
           ],
         ],
       ),

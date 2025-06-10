@@ -1,9 +1,4 @@
-// ignore_for_file: unused_import
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:auth_buttons/auth_buttons.dart';
 import 'package:smart_expend/helper_classes/sign_in_methods.dart';
 

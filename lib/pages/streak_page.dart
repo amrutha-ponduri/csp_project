@@ -191,7 +191,7 @@ class _StreaksPageState extends State<StreaksPage> {
                           IconButton(
                             icon: Icon(Icons.arrow_left,
                                 size: 32,
-                                color: selectedMonth.isAfter(signupMonthStart) ? arrowColor : Colors.grey),
+                                color: (signUpDate!.month == selectedMonth.month && signUpDate!.year == selectedMonth.year) ? Colors.grey : arrowColor),
                             onPressed: canGoBack
                                 ? () {
                                     _changeMonth(-1);
@@ -258,7 +258,7 @@ class _StreaksPageState extends State<StreaksPage> {
                                               date.isAfter(DateTime.now());
                                           final isBeforeSignUp =
                                               signUpDate != null &&
-                                                  date.isBefore(signUpDate!.subtract(Duration(days:1)));
+                                                  date.isBefore(signUpDate!);
                                           final completed =
                                               currentStreakData[day] ?? false;
                                           final isToday = DateTime.now().year ==

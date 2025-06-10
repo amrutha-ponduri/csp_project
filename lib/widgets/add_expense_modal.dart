@@ -1,12 +1,9 @@
-// ignore_for_file: unused_import, use_build_context_synchronously
-
 import 'dart:math';
-
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:smart_expend/loading_data/set_details_methods.dart';
 
 class AddexpenseModal extends StatefulWidget {
   final String option;
@@ -24,6 +21,11 @@ class AddexpenseModal extends StatefulWidget {
 }
 
 class _AddexpenseModalState extends State<AddexpenseModal> {
+  late SetDetailsMethods setDetailsMethods;
+  _AddexpenseModalState() {
+    setDetailsMethods = SetDetailsMethods();
+  }
+  double? currentSavings;
   final _formKey = GlobalKey<FormState>();
   var db = FirebaseFirestore.instance;
   DateTime? initLastActiveDate;
@@ -131,6 +133,7 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                             'expenseValue': expenseValue,
                             'timeStamp': DateTime.now(),
                           });
+                          await setDetailsMethods.addToCurrentSavings(currentSavings: currentSavings, expenseValue: expenseValue);
                           await getStreakDetails();
                           await db
                               .collection('users')
@@ -158,6 +161,7 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
                             'expenseName': expenseName,
                             'expenseValue': expenseValue,
                           });
+                          await setDetailsMethods.addToCurrentSavings(previousExpense : previousExpense, currentSavings : currentSavings, expenseValue : expenseValue);
                           await addExpenseToMonth(
                               previousExpense: previousExpense);
                           Navigator.pop(context);
@@ -351,4 +355,6 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
     final snapshot = await collectionReference.limit(1).get();
     return snapshot.docs.isNotEmpty;
   }
+  
+  
 }

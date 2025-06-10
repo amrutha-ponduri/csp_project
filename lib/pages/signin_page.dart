@@ -1,7 +1,7 @@
 import 'package:auth_buttons/auth_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_expend/helper_classes/sign_in_methods.dart';
-import 'package:smart_expend/pages/signuppage.dart';
+import 'package:smart_expend/pages/signup_page.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});

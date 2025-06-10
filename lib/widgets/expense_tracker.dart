@@ -192,8 +192,11 @@ class _DoraemonSummaryChartState extends State<DoraemonSummaryChart> with Single
         .collection('monthlyExpenses')
         .doc(docPath);
     final snapshot = await documentReference.get();
-    final data = snapshot.data() as Map<String, dynamic>;
-    expenses = await (data['expenseValue'] as num).toDouble();
+    Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+    if (data == null) {
+      return;
+    }
+    expenses = (data['expenseValue'] as num).toDouble();
   }
 
   Future<void> fetchPocketMoney() async {
@@ -201,7 +204,6 @@ class _DoraemonSummaryChartState extends State<DoraemonSummaryChart> with Single
     final int year = DateTime.now().year;
     final int month = DateTime.now().month;
     final docPath = '$year-${month}details';
-    print(docPath);
     final String? email = FirebaseAuth.instance.currentUser!.email;
     final DocumentReference documentReference = db
         .collection('users')
@@ -209,7 +211,10 @@ class _DoraemonSummaryChartState extends State<DoraemonSummaryChart> with Single
         .collection('pocketMoney')
         .doc(docPath);
     final snapshot = await documentReference.get();
-    final data = snapshot.data() as Map<String, dynamic>;
-    pocketMoney = await (data['pocketMoney'] as num).toDouble();
+    Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+    if (data == null) {
+      return;
+    }
+    pocketMoney = (data['pocketMoney'] as num).toDouble();
   }
 }

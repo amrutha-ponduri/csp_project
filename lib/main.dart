@@ -3,11 +3,10 @@ import 'package:smart_expend/pages/profile_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_expend/firebase_options.dart';
-import 'package:smart_expend/pages/monthendpage.dart';
-import 'package:smart_expend/pages/mothstartpage.dart';
-import 'package:smart_expend/pages/signinpage.dart';
+import 'package:smart_expend/pages/month_end_page.dart';
+import 'package:smart_expend/pages/month_start_page.dart';
+import 'package:smart_expend/pages/signin_page.dart';
 import 'package:smart_expend/helper_classes/authenticationhandler.dart';
-import 'package:smart_expend/pages/targetpage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

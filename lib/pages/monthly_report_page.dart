@@ -1,6 +1,6 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
-import 'package:smart_expend/pages/dailychart.dart';
+import 'package:smart_expend/widgets/daily_chart.dart';
 import 'package:smart_expend/widgets/expense_tracker.dart';
 
 class MonthlyReportPage extends StatefulWidget {

@@ -1,25 +1,18 @@
-// ignore_for_file: unused_import
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_popup/flutter_popup.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:clay_containers/clay_containers.dart';
-import 'package:intl/intl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_expend/helper_classes/delete_helper.dart';
 import 'package:smart_expend/loading_data/expensemodel.dart';
-import 'package:smart_expend/loading_data/get_data.dart';
-import 'package:smart_expend/pages/monthly_report_page.dart';
-import 'package:smart_expend/pages/monthlychart.dart';
-import 'package:smart_expend/pages/mothstartpage.dart';
+import 'package:smart_expend/loading_data/load_details_methods.dart';
+import 'package:smart_expend/loading_data/set_details_methods.dart';
+import 'package:smart_expend/pages/month_start_page.dart';
 import 'package:smart_expend/pages/profile_page.dart';
 import 'package:smart_expend/pages/streak_page.dart';
-import 'package:smart_expend/widgets/addexpense_modal.dart';
-import 'package:smart_expend/widgets/expense_tracker.dart';
-import 'package:smart_expend/widgets/snackbarwidget.dart';
-import 'package:top_modal_sheet/top_modal_sheet.dart';
+import 'package:smart_expend/pages/target_page.dart';
+import 'package:smart_expend/widgets/add_expense_modal.dart';
+import 'package:smart_expend/widgets/snackbar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class DailyExpenses extends StatefulWidget {
@@ -30,13 +23,35 @@ class DailyExpenses extends StatefulWidget {
 }
 
 class _DailyExpensesState extends State<DailyExpenses> {
+  double? previousSavings;
+  double? targetAmount;
+  double? pocketMoney;
+  @override
+  @override
+  @override
   @override
   void initState() {
-    BatchDelete bd= BatchDelete();
-    bd.batchDelete();
-    bd.batchDeleteYears();
     super.initState();
+    _initAsync();
   }
+
+  Future<void> _initAsync() async {
+    BatchDelete bd = BatchDelete();
+    await bd.batchDelete();
+    await bd.batchDeleteYears();
+
+    await loadPocketMoney(); // This might show dialog & navigate
+    if (!mounted) return;    // If user navigated away, stop here
+
+    await loadTargetandSavingsDetails(); // May show dialog
+    if (!mounted) return;
+
+    updatePreviousSavings(); // No async, but good practice to check anyway
+  }
+
+
+
+
   var db = FirebaseFirestore.instance;
   @override
   Widget build(BuildContext context) {
@@ -46,19 +61,16 @@ class _DailyExpensesState extends State<DailyExpenses> {
     String? emailAddress = user!.email;
     return Scaffold(
       appBar: AppBar(
-        // leading: Builder(
-        //   builder: (context) {
-        //     return IconButton(
-        //         onPressed: () {
-        //           Scaffold.of(context).openDrawer();
-        //         },
-        //         icon: Icon(Icons.menu));
-        //   },
-        // ),
         actions: [
-          IconButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context) => StreaksPage(),));
-          }, icon: Icon(FontAwesomeIcons.fireFlameCurved)),
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StreaksPage(),
+                    ));
+              },
+              icon: Icon(FontAwesomeIcons.fireFlameCurved)),
           IconButton(
               onPressed: () {
                 Navigator.push(context,
@@ -71,59 +83,6 @@ class _DailyExpensesState extends State<DailyExpenses> {
         title: const Text("Daily Expenses"),
         centerTitle: true,
       ),
-      // drawer: Drawer(
-      //   width: 220, // Custom width
-      //   child: SafeArea(
-      //     child: Align(
-      //       alignment: Alignment.topLeft,
-      //       child: Column(
-      //         mainAxisSize: MainAxisSize.min,
-      //         children: [
-      //           ListTile(
-      //             leading: Icon(Icons.savings, color: Colors.lightBlue),
-      //             title: Text('Store Pocket Money',
-      //                 style: TextStyle(color: Colors.blue)),
-      //             onTap: () {
-      //               Navigator.push(
-      //                 context,
-      //                 MaterialPageRoute(
-      //                     builder: (context) => const MonthStartPage()),
-      //               );
-      //             },
-      //           ),
-      //           ListTile(
-      //             leading: Icon(Icons.bar_chart, color: Colors.lightBlue),
-      //             title: Text('View Yearly chart',
-      //                 style: TextStyle(color: Colors.blue)),
-      //             onTap: () {
-      //               Navigator.push(
-      //                 context,
-      //                 MaterialPageRoute(
-      //                     builder: (context) => const YearlyChartPage()),
-      //               );
-      //             },
-      //           ),
-      //           ListTile(
-      //             title: Text('Pie chart'),
-      //             onTap: (){
-      //               Navigator.push(context, MaterialPageRoute(builder: (context) => MonthlyReportPage(),));
-      //             },
-      //           ),
-      //           ListTile(
-      //             leading: Icon(Icons.logout),
-      //             title: Text('Log Out'),
-      //             onTap: () async{
-      //               final prefs = await SharedPreferences.getInstance();
-      //               await prefs.clear();
-      //               await FirebaseAuth.instance.signOut();
-      //
-      //             },
-      //           )
-      //         ],
-      //       ),
-      //     ),
-      //   ),
-      // ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('users')
@@ -265,7 +224,6 @@ class _DailyExpensesState extends State<DailyExpenses> {
               builder: (context) => const AddexpenseModal(
                     option: 'add',
                   ));
-          setState(() {});
         },
         backgroundColor: const Color.fromARGB(255, 180, 200, 234),
         child: const Icon(
@@ -323,8 +281,129 @@ class _DailyExpensesState extends State<DailyExpenses> {
 
     // Step 4: Update Firestore
     await monthlyDocRef.update({'expenseValue': updatedTotal});
+    SetDetailsMethods setDetailsMethods = SetDetailsMethods();
+    await setDetailsMethods.updateOnlySavingsOfCurrentSavings(
+        removedExpense: deletedValue);
 
     // Step 5: Delete the daily expense document
     await expenseDocRef.delete();
+  }
+
+  Future<void> loadTargetandSavingsDetails() async {
+    LoadDetailsMethods loadDetailsMethods = LoadDetailsMethods();
+    previousSavings = await loadDetailsMethods.getPreviousSavings();
+    // if (previousSavings == null) {
+    //   return;
+    // }
+    Map<String, dynamic>? targetProductDetails =
+        await loadDetailsMethods.fetchTargetProductDetails();
+    // if (!mounted) return;
+
+    if (targetProductDetails == null) {
+      await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Please set your target'),
+            actions: [
+              TextButton(
+                onPressed: () async{
+                  Navigator.pop(context);
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => TargetPage()),
+                  );
+                },
+                child: Text('Set Target'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+    else {
+      targetAmount = await targetProductDetails['targetAmount'];
+      previousSavings = previousSavings??0;
+      if (targetAmount! <= previousSavings!) {
+        await setData(remainingSavings: previousSavings! - targetAmount!);
+        showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Hurray! Target Acheived'),
+                actions: [
+                  TextButton(
+                      onPressed: () async{
+                        Navigator.pop(context);
+                        await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => TargetPage()));
+                      },
+                      child: Text('Set your next target')),
+                ],
+              );
+            });
+      }
+    }
+  }
+
+  Future<void> setData({required double remainingSavings}) async {
+    SetDetailsMethods setDetailsMethods = SetDetailsMethods();
+    await setDetailsMethods.setNewTarget(newTarget: <String, dynamic>{
+      'targetProduct': null,
+      'targetAmount': 0.0
+    });
+    await setDetailsMethods.setPreviousSavings(
+        remainingSavings: remainingSavings);
+  }
+
+  Future<void> loadPocketMoney() async {
+    LoadDetailsMethods loadDetailsMethods = LoadDetailsMethods();
+    Map<String, dynamic>? pocketMoneyDetails =
+        await loadDetailsMethods.fetchPocketMoneyDetails(
+      month: DateTime.now().month,
+      year: DateTime.now().year,
+    );
+
+    if (pocketMoneyDetails == null) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Please save your pocket money details'),
+            actions: [
+              TextButton(
+                onPressed: () async{
+                  Navigator.pop(context); // Close the dialog
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MonthStartPage()),
+                  );
+                },
+                child: Text('Add pocket money details'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> updatePreviousSavings() async {
+    LoadDetailsMethods loadDetailsMethods = LoadDetailsMethods();
+    Map<String, dynamic>? currentSavings =
+        await loadDetailsMethods.getCurrentSavings();
+    if (currentSavings == null) {
+      return;
+    }
+    if ((currentSavings['month'] as Timestamp).toDate() !=
+        DateTime(DateTime.now().year, DateTime.now().month)) {
+      SetDetailsMethods setDetailsMethods = SetDetailsMethods();
+      await setDetailsMethods.updatePreviousSavings(
+          addedSavings: (currentSavings['savings'] as num).toDouble());
+    }
   }
 }
