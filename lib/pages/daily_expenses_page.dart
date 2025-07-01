@@ -1,19 +1,19 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:clay_containers/clay_containers.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:smart_expend/helper_classes/delete_helper.dart';
 import 'package:smart_expend/loading_data/expensemodel.dart';
 import 'package:smart_expend/loading_data/load_details_methods.dart';
 import 'package:smart_expend/loading_data/set_details_methods.dart';
-import 'package:smart_expend/pages/month_start_page.dart';
+import 'package:smart_expend/pages/store_pocketmoney.dart';
 import 'package:smart_expend/pages/profile_page.dart';
 import 'package:smart_expend/pages/streak_page.dart';
 import 'package:smart_expend/pages/target_page.dart';
 import 'package:smart_expend/widgets/add_expense_modal.dart';
 import 'package:smart_expend/widgets/snackbar.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class DailyExpenses extends StatefulWidget {
   const DailyExpenses({super.key});
@@ -23,12 +23,31 @@ class DailyExpenses extends StatefulWidget {
 }
 
 class _DailyExpensesState extends State<DailyExpenses> {
+
+  showModal({expenseName, expenseValue, documentReference}) {
+
+    showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+
+        context: context,
+        isScrollControlled: true,
+        builder: (context) {
+          return AddExpenseModal(
+            option: 'edit',
+            expenseName: expenseName,
+            expenseValue: expenseValue,
+            documentReference: documentReference,
+          );
+        }
+    );
+  }
+
   double? previousSavings;
   double? targetAmount;
   double? pocketMoney;
-  @override
-  @override
-  @override
+  Color doraemonBlue = Color(0xFF2196F3);
+  Color daisyWhite = Color(0xFFFFFDE7);
+  Color pearlWhite = Color(0xFFFBFCF8);
   @override
   void initState() {
     super.initState();
@@ -41,16 +60,13 @@ class _DailyExpensesState extends State<DailyExpenses> {
     await bd.batchDeleteYears();
 
     await loadPocketMoney(); // This might show dialog & navigate
-    if (!mounted) return;    // If user navigated away, stop here
+    if (!mounted) return; // If user navigated away, stop here
 
     await loadTargetandSavingsDetails(); // May show dialog
     if (!mounted) return;
 
     updatePreviousSavings(); // No async, but good practice to check anyway
   }
-
-
-
 
   var db = FirebaseFirestore.instance;
   @override
@@ -62,191 +78,222 @@ class _DailyExpensesState extends State<DailyExpenses> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => StreaksPage(),
-                    ));
-              },
-              icon: Icon(FontAwesomeIcons.fireFlameCurved)),
-          IconButton(
-              onPressed: () {
-                Navigator.push(context,
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StreaksPage(),
+                  ));
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right : 6.0),
+              child: Image.asset(
+                'assets/images/fire_streaks.png',
+                width: 40,
+                height: 40,
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(context,
                     MaterialPageRoute(builder: (context) => ProfilePage()));
-                //Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(),));
-              },
-              icon: Icon(Icons.person_outlined))
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right : 5.0),
+              child: Image.asset('assets/images/doraemon.png',width: 40, height: 40,),
+            ),
+          ),
         ],
-        backgroundColor: const Color.fromARGB(255, 180, 200, 234),
-        title: const Text("Daily Expenses"),
+        backgroundColor: Color(0xFF78d5fa), // Light sky blue
+        title: Text(
+          "Daily Expenses",
+          style: TextStyle(
+              color: Color(0xFF00008B),
+              fontFamily: 'Baloo2',
+              fontWeight: FontWeight.w500
+            ),
+        ),
         centerTitle: true,
       ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(emailAddress)
-            .collection('dailyExpenses')
-            .where('timeStamp', isGreaterThanOrEqualTo: startTimeStamp)
-            .orderBy('timeStamp', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            if (snapshot.data!.docs.isEmpty) {
-              return const Center(
-                child: Text('No expenses added'),
-              );
-            }
-            final expenses = snapshot.data!.docs.map((doc) {
-              final data = doc.data();
-              return Expense(
-                title: data['expenseName'],
-                amount: (data['expenseValue'] as num).toDouble(),
-                date: (data['timeStamp'] as Timestamp).toDate(),
-                docReference: doc.reference,
-              );
-            }).toList();
-            final items = buildGroupedExpenseList(expenses);
-            return ListView.separated(
-                separatorBuilder: (context, index) {
-                  return const SizedBox(
-                    height: 0,
-                    width: double.infinity,
+      body: Stack(
+        children: [
+          Positioned.fill(
+              child: Image.asset(
+            'assets/images/background_bells.jpg',
+            fit: BoxFit.fill,
+            repeat: ImageRepeat.repeatY,
+          )),
+          StreamBuilder(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc(emailAddress)
+                .collection('dailyExpenses')
+                .where('timeStamp', isGreaterThanOrEqualTo: startTimeStamp)
+                .orderBy('timeStamp', descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                if (snapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text('No expenses added'),
                   );
-                },
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  if (item is ExpenseHeader) {
-                    return Center(
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 10),
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 97, 127, 151),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Padding(
+                }
+                final expenses = snapshot.data!.docs.map((doc) {
+                  final data = doc.data();
+                  return Expense(
+                    title: data['expenseName'],
+                    amount: (data['expenseValue'] as num).toDouble(),
+                    date: (data['timeStamp'] as Timestamp).toDate(),
+                    docReference: doc.reference,
+                  );
+                }).toList();
+                final items = buildGroupedExpenseList(expenses);
+                return ListView.separated(
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(
+                        height: 0,
+                        width: double.infinity,
+                      );
+                    },
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      final item = items[index];
+                      if (item is ExpenseHeader) {
+                        return Center(
+                          child: Container(
+                            margin: const EdgeInsets.only(top: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(60),
+                              color : pearlWhite
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                item.label,
+                                style: const TextStyle(
+                                    color: Color(0xFF00008B),
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Baloo2'),
+                              ),
+                            ),
+                          ),
+                        );
+                      } else if (item is ExpenseEntry) {
+                        final e = item.expense;
+                        return Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            item.label,
-                            style: const TextStyle(
-                                color: Color.fromARGB(255, 2, 61, 109)),
-                          ),
-                        ),
-                      ),
-                    );
-                  } else if (item is ExpenseEntry) {
-                    final e = item.expense;
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ClayContainer(
-                        emboss: true,
-                        borderRadius: 6,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: ClayText(
-                                  e.title,
-                                  emboss: true,
-                                  color:
-                                      const Color.fromARGB(255, 145, 185, 218),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 3,
-                                child: ClayText(
-                                  e.amount.toStringAsFixed(2),
-                                  emboss: true,
-                                  color:
-                                      const Color.fromARGB(255, 145, 185, 218),
-                                ),
-                              ),
-                              PopupMenuButton(onSelected: (value) async {
-                                if (value == 'delete') {
-                                  try {
-                                    await deleteExpense(
-                                        expenseDocRef: e.docReference);
-                                    await e.docReference.delete();
-                                  } on FirebaseException {
-                                    Snackbarwidget snackbar = Snackbarwidget(
-                                        backgroundColor: const Color.fromARGB(
-                                            255, 239, 156, 151),
-                                        content: 'Unable to delete',
-                                        textColor: const Color.fromARGB(
-                                            255, 83, 9, 9));
-                                    snackbar.showSnackBar();
-                                  }
-                                } else if (value == 'edit') {
-                                  Future.microtask(() {
-                                    showModal(
-                                      expenseName: e.title,
-                                      expenseValue: e.amount,
-                                      documentReference: e.docReference,
-                                    );
-                                  });
-                                }
-                              }, itemBuilder: (context) {
-                                return [
-                                  const PopupMenuItem(
-                                    value: 'edit',
-                                    child: Text('Edit'),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: pearlWhite,
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(
+                                      toInitCap(e.title),
+                                      style: TextStyle(
+                                          color: doraemonBlue,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Nunito'),
+                                    ),
                                   ),
-                                  const PopupMenuItem(
-                                    value: 'delete',
-                                    child: Text('Delete'),
-                                  )
-                                ];
-                              })
-                            ],
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(
+                                      e.amount.toStringAsFixed(2),
+                                      style: TextStyle(
+                                          color: doraemonBlue,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Nunito'),
+                                    ),
+                                  ),
+                                  PopupMenuButton(onSelected: (value) async {
+                                    if (value == 'delete') {
+                                      try {
+                                        await deleteExpense(
+                                            expenseDocRef: e.docReference);
+                                        await e.docReference.delete();
+                                      } on FirebaseException {
+                                        Snackbarwidget snackbar =
+                                            Snackbarwidget(
+                                                backgroundColor:
+                                                    const Color.fromARGB(
+                                                        255, 239, 156, 151),
+                                                content: 'Unable to delete',
+                                                textColor: const Color.fromARGB(
+                                                    255, 83, 9, 9));
+                                        snackbar.showSnackBar();
+                                      }
+                                    } else if (value == 'edit') {
+                                      Future.microtask(() {
+                                        showModal(
+                                          expenseName: e.title,
+                                          expenseValue: e.amount,
+                                          documentReference: e.docReference,
+                                        );
+                                      });
+                                    }
+                                  }, itemBuilder: (context) {
+                                    return [
+                                      const PopupMenuItem(
+                                        value: 'edit',
+                                        child: Text('Edit'),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'delete',
+                                        child: Text('Delete'),
+                                      )
+                                    ];
+                                  })
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                });
-          }
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    });
+              }
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            },
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await showMaterialModalBottomSheet(
-              context: context,
-              builder: (context) => const AddexpenseModal(
-                    option: 'add',
-                  ));
-        },
-        backgroundColor: const Color.fromARGB(255, 180, 200, 234),
-        child: const Icon(
-          Icons.add,
-          color: Colors.blue,
-        ),
+      
+      floatingActionButton: FloatingActionButton(onPressed: () async {
+            await showMaterialModalBottomSheet(
+                context: context,
+                builder: (context) => const AddExpenseModal(
+                      option: 'add',
+                    ));
+          },
+      backgroundColor: doraemonBlue,
+        child: Icon(Icons.add, color: Colors.white, weight: 20,),
+      
       ),
+      // floatingActionButton: EnterExpenseButton(
+      //   onPressed: () async {
+      //     await showMaterialModalBottomSheet(
+      //         context: context,
+      //         builder: (context) => const AddexpenseModal(
+      //               option: 'add',
+      //             ));
+      //   },
+      // ),
     );
   }
 
-  showModal({expenseName, expenseValue, documentReference}) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return AddexpenseModal(
-          option: 'edit',
-          expenseName: expenseName,
-          expenseValue: expenseValue,
-          documentReference: documentReference,
-        );
-      },
-    );
-  }
+
 
   Future<void> deleteExpense({required DocumentReference expenseDocRef}) async {
     final userEmail = FirebaseAuth.instance.currentUser!.email;
@@ -307,7 +354,7 @@ class _DailyExpensesState extends State<DailyExpenses> {
             title: Text('Please set your target'),
             actions: [
               TextButton(
-                onPressed: () async{
+                onPressed: () async {
                   Navigator.pop(context);
                   await Navigator.push(
                     context,
@@ -320,10 +367,9 @@ class _DailyExpensesState extends State<DailyExpenses> {
           );
         },
       );
-    }
-    else {
+    } else {
       targetAmount = await targetProductDetails['targetAmount'];
-      previousSavings = previousSavings??0;
+      previousSavings = previousSavings ?? 0;
       if (targetAmount! <= previousSavings!) {
         await setData(remainingSavings: previousSavings! - targetAmount!);
         showDialog(
@@ -334,7 +380,7 @@ class _DailyExpensesState extends State<DailyExpenses> {
                 title: Text('Hurray! Target Acheived'),
                 actions: [
                   TextButton(
-                      onPressed: () async{
+                      onPressed: () async {
                         Navigator.pop(context);
                         await Navigator.push(
                             context,
@@ -376,11 +422,11 @@ class _DailyExpensesState extends State<DailyExpenses> {
             title: Text('Please save your pocket money details'),
             actions: [
               TextButton(
-                onPressed: () async{
+                onPressed: () async {
                   Navigator.pop(context); // Close the dialog
                   await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MonthStartPage()),
+                    MaterialPageRoute(builder: (context) => StorePocketMoney()),
                   );
                 },
                 child: Text('Add pocket money details'),
@@ -405,5 +451,12 @@ class _DailyExpensesState extends State<DailyExpenses> {
       await setDetailsMethods.updatePreviousSavings(
           addedSavings: (currentSavings['savings'] as num).toDouble());
     }
+  }
+
+  String toInitCap(String title) {
+    if (title.length < 2) {
+      return title.toUpperCase();
+    }
+    return title[0].toUpperCase() + title.substring(1);
   }
 }

@@ -17,50 +17,54 @@ class AuthenticateCheck extends StatefulWidget {
 class _AuthenticateCheckState extends State<AuthenticateCheck> {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasData) {
-          return FutureBuilder<Map<String, dynamic>?>(
-            future: shouldShowSummaryWithData(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (snapshot.hasData && snapshot.data != null) {
-                // Trigger page push
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => MonthEndPage(
-                        goalAmount: snapshot.data!['goalAmount'],
-                        savedAmount: snapshot.data!['savedAmount'],
-                        month: snapshot.data!['month'],
-                        year: snapshot.data!['year'],
-                      ),
-                    ),
-                  ).then((_) {
-                    // Trigger rebuild when MonthEndPage is popped
-                    setState(() {});
-                  });
-                });
-
-                // While waiting for MonthEndPage to pop, show something minimal
-                return const SizedBox.shrink();
-              }
-              return const DailyExpenses();
-            },
-          );
-        }
-
-        return const SignInPage();
-      },
-    );
+    return MonthEndPage(goalAmount: 2000, savedAmount: 1500, month: 'May', year: 2025);
+    // return StreamBuilder<User?>(
+    //   stream: FirebaseAuth.instance.authStateChanges(),
+    //   builder: (context, snapshot) {
+    //     if (snapshot.connectionState == ConnectionState.waiting) {
+    //       return const Center(child: CircularProgressIndicator());
+    //     }
+    //
+    //     if (snapshot.hasData) {
+    //       return FutureBuilder<Map<String, dynamic>?>(
+    //         future: shouldShowSummaryWithData(),
+    //         builder: (context, snapshot) {
+    //           if (snapshot.connectionState == ConnectionState.waiting) {
+    //             return const Center(child: CircularProgressIndicator());
+    //           }
+    //
+    //           if (snapshot.hasData && snapshot.data != null) {
+    //             // Trigger page push
+    //             WidgetsBinding.instance.addPostFrameCallback((_) {
+    //               Navigator.of(context)
+    //                   .pushReplacement(
+    //                 MaterialPageRoute(
+    //                   builder: (context) => MonthEndPage(
+    //                     goalAmount: snapshot.data!['goalAmount'],
+    //                     savedAmount: snapshot.data!['savedAmount'],
+    //                     month: snapshot.data!['month'],
+    //                     year: snapshot.data!['year'],
+    //                   ),
+    //
+    //                 ),
+    //               )
+    //                   .then((_) {
+    //                 // Trigger rebuild when MonthEndPage is popped
+    //                 setState(() {});
+    //               });
+    //             });
+    //
+    //             // While waiting for MonthEndPage to pop, show something minimal
+    //             return const SizedBox.shrink();
+    //           }
+    //           return const DailyExpenses();
+    //         },
+    //       );
+    //     }
+    //
+    //     return const SignInPage();
+    //   },
+    // );
   }
 
   Future<Map<String, dynamic>?> shouldShowSummaryWithData() async {
@@ -84,8 +88,10 @@ class _AuthenticateCheckState extends State<AuthenticateCheck> {
     await prefs.setInt('lastShownYear', prevYear);
 
     LoadDetailsMethods loader = LoadDetailsMethods();
-    final expenses = await loader.fetchMonthlyExpensesDetails(month: prevMonth, year: prevYear);
-    final pocket = await loader.fetchPocketMoneyDetails(month: prevMonth, year: prevYear);
+    final expenses = await loader.fetchMonthlyExpensesDetails(
+        month: prevMonth, year: prevYear);
+    final pocket =
+        await loader.fetchPocketMoneyDetails(month: prevMonth, year: prevYear);
 
     if (expenses.isEmpty || pocket == null) return null;
 

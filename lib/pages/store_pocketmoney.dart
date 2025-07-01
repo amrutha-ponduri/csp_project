@@ -5,14 +5,14 @@ import 'package:intl/intl.dart';
 import 'package:smart_expend/loading_data/load_details_methods.dart';
 import 'package:smart_expend/loading_data/set_details_methods.dart';
 
-class MonthStartPage extends StatefulWidget {
-  const MonthStartPage({super.key});
+class StorePocketMoney extends StatefulWidget {
+  const StorePocketMoney({super.key});
 
   @override
-  State<MonthStartPage> createState() => _MonthStartPageState();
+  State<StorePocketMoney> createState() => _StorePocketMoneyState();
 }
 
-class _MonthStartPageState extends State<MonthStartPage> {
+class _StorePocketMoneyState extends State<StorePocketMoney> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController pocketMoneyController = TextEditingController();
   final TextEditingController targetSavingsController = TextEditingController();

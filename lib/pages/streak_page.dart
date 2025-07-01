@@ -124,7 +124,7 @@ class _StreaksPageState extends State<StreaksPage> {
     final canGoForward = selectedMonth.isBefore(currentMonthStart);
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Doraemon Monthly Start",
+        title: const Text("Streaks Page",
             style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.lightBlue.shade700,
         centerTitle: true,
@@ -151,17 +151,21 @@ class _StreaksPageState extends State<StreaksPage> {
                       ),
                       const SizedBox(height: 20),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Image.asset(
                             'assets/images/doraemon_wallet.png',
-                            height: 80,
+                            height: 140,
                             fit: BoxFit.contain,
                           ),
-                          Image.asset(
-                            'assets/images/nobita_money.png',
-                            height: 80,
-                            fit: BoxFit.contain,
+                          Padding(
+                            padding: const EdgeInsets.only(right : 50.0),
+                            child: Image.asset(
+                              'assets/images/nobita_money.png',
+                              height: 150,
+                              width: 150,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ],
                       ),

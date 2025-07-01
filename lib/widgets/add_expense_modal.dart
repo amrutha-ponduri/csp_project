@@ -5,26 +5,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:smart_expend/loading_data/set_details_methods.dart';
 
-class AddexpenseModal extends StatefulWidget {
+class AddExpenseModal extends StatefulWidget {
   final String option;
   final String? expenseName;
   final double? expenseValue;
   final DocumentReference? documentReference;
-  const AddexpenseModal(
+  const AddExpenseModal(
       {super.key,
       required this.option,
       this.expenseName,
       this.expenseValue,
       this.documentReference});
   @override
-  State<AddexpenseModal> createState() => _AddexpenseModalState();
+  State<AddExpenseModal> createState() => _AddExpenseModalState();
 }
 
-class _AddexpenseModalState extends State<AddexpenseModal> {
+class _AddExpenseModalState extends State<AddExpenseModal> with SingleTickerProviderStateMixin {
   late SetDetailsMethods setDetailsMethods;
-  _AddexpenseModalState() {
+  final Color doraemonBlue = Color(0xFF2196F3);
+  final Color daisyWhite = Color(0xFFFFFFFF);
+  _AddExpenseModalState() {
     setDetailsMethods = SetDetailsMethods();
   }
+  late AnimationController _controller;
+  late Animation<Offset> _slideAnimation;
   double? currentSavings;
   final _formKey = GlobalKey<FormState>();
   var db = FirebaseFirestore.instance;
@@ -36,6 +40,27 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
   int? maximumStreak;
   String currentMonth =
       DateFormat('MMM-yyyy').format(DateTime.now()); // e.g. "May-2025"
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800), // now THIS will animate slowly
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: Offset(0, 1),
+      end: Offset(0, 0),
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+
+    _controller.forward();
+
+  }
+
+
   @override
   Widget build(BuildContext context) {
     TextEditingController expenseNameController = TextEditingController();
@@ -44,132 +69,204 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
       expenseNameController.text = widget.expenseName!;
       expenseValueController.text = widget.expenseValue!.toString();
     }
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return SlideTransition(
+      position: _slideAnimation,
       child: SizedBox(
-        height: 300,
-        child: Form(
-          key: _formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              TextFormField(
-                controller: expenseNameController,
-                autocorrect: true,
-                decoration: InputDecoration(
-                    hintText: 'What did you spend for?',
-                    hintFadeDuration: const Duration(milliseconds: 30),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 1,
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color : Colors.white,
+                    borderRadius: BorderRadius.circular(30)
+                  ),
+                  child: IconButton(onPressed: (){
+                    Navigator.pop(context);
+                  }, icon: Icon(Icons.close, color: doraemonBlue, weight: 50,)),
+                )
+              ],
+            ),
+
+            Image.asset('assets/images/dialog1.png'),
+
+            Container(
+              height: 560,
+              decoration: BoxDecoration(
+                image: DecorationImage(image: AssetImage('assets/images/doraemon_flying.png'), fit: BoxFit.cover, alignment: Alignment.center),
+                color: Colors.transparent
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      height: 200,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: daisyWhite
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Form(
+                          key: _formKey,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              TextFormField(
+                                controller: expenseNameController,
+                                cursorColor: doraemonBlue,
+                                style: TextStyle(color: doraemonBlue, fontWeight: FontWeight.w600),
+                                autocorrect: true,
+                                decoration: InputDecoration(
+                                    hintText: 'What did you spend for?',
+                                    hintStyle: TextStyle(color: doraemonBlue),
+                                    hintFadeDuration: const Duration(milliseconds: 30),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(
+                                        color: doraemonBlue,
+                                        width: 2.5,
+                                      ),
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide:
+                                            const BorderSide(color: Colors.red, width: 1.5)),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide:
+                                            const BorderSide(color: Colors.red, width: 1.5)),
+                                    enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(
+                                          color: doraemonBlue,
+                                          width: 2.5,
+                                        ))),
+                                validator: (value) {
+                                  return validateExpenseName(value);
+                                },
+                                onSaved: (newValue) => expenseName = newValue!,
+                              ),
+                              TextFormField(
+                                controller: expenseValueController,
+                                cursorColor: doraemonBlue,
+                                style: TextStyle(color: doraemonBlue, fontWeight: FontWeight.w400),
+                                autocorrect: true,
+                                decoration: InputDecoration(
+                                    hintText: 'How much did you spend?',
+                                    hintStyle: TextStyle(color : doraemonBlue),
+                                    hintFadeDuration: const Duration(milliseconds: 30),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(
+                                        color: doraemonBlue,
+                                        width: 2.5,
+                                      ),
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide:
+                                            const BorderSide(color: Colors.red, width: 1.5)),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide:
+                                            const BorderSide(color: Colors.red, width: 1.5)),
+                                    enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(
+                                          color: doraemonBlue,
+                                          width: 2.5,
+                                        ))),
+                                validator: (value) {
+                                  return validateExpenseValue(value);
+                                },
+                                onSaved: (newValue) => expenseValue = double.parse(newValue!),
+                              ),
+                              widget.option == 'add'
+                                  ? SizedBox(
+                                    width: 100,
+                                    child: ElevatedButton(
+                                        onPressed: () async {
+                                          if (_formKey.currentState!.validate()) {
+                                            _formKey.currentState!.save();
+                                            String? email =
+                                                FirebaseAuth.instance.currentUser!.email;
+                                            var userReference = db.collection("users").doc(email);
+                                            await userReference
+                                                .collection("dailyExpenses")
+                                                .add(<String, dynamic>{
+                                              'expenseName': expenseName,
+                                              'expenseValue': expenseValue,
+                                              'timeStamp': DateTime.now(),
+                                            });
+                                            await setDetailsMethods.addToCurrentSavings(currentSavings: currentSavings, expenseValue: expenseValue);
+                                            await getStreakDetails();
+                                            await db
+                                                .collection('users')
+                                                .doc(email)
+                                                .collection('streaksDetails')
+                                                .doc('details')
+                                                .set(<String, dynamic>{
+                                              'currentStreak': currentStreak,
+                                              'maximumStreak': maximumStreak,
+                                              'lastActiveDate': lastActiveDate
+                                            }, SetOptions(merge: true));
+                                            await setStreakActiveDetails(lastActiveDate: lastActiveDate!);
+                                            await addExpenseToMonth();
+                                            Navigator.pop(context);
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10)
+                                          ),
+                                          backgroundColor: doraemonBlue
+                                        ),
+                                        child: const Text('Add', style: TextStyle(color: Colors.white),)
+                                      ),
+                                  )
+                                  : SizedBox(
+                                    width: 100,
+                                    child: ElevatedButton(
+                                        onPressed: () async {
+                                          if (_formKey.currentState!.validate()) {
+                                            _formKey.currentState!.save();
+                                            double previousExpense = await getPreviousExpense();
+                                            widget.documentReference!.update(<String, dynamic>{
+                                              'expenseName': expenseName,
+                                              'expenseValue': expenseValue,
+                                            });
+                                            await setDetailsMethods.addToCurrentSavings(previousExpense : previousExpense, currentSavings : currentSavings, expenseValue : expenseValue);
+                                            await addExpenseToMonth(
+                                                previousExpense: previousExpense);
+                                            Navigator.pop(context);
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(10)
+                                            ),
+                                            backgroundColor: doraemonBlue
+                                        ),
+                                        child: const Text('Update', style: TextStyle(color: Colors.white),)),
+                                  )
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                    errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                            const BorderSide(color: Colors.red, width: 1.5)),
-                    focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                            const BorderSide(color: Colors.red, width: 1.5)),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                          color: Colors.black,
-                          width: 1,
-                        ))),
-                validator: (value) {
-                  return validateExpenseName(value);
-                },
-                onSaved: (newValue) => expenseName = newValue!,
+                  ],
+                ),
               ),
-              TextFormField(
-                controller: expenseValueController,
-                autocorrect: true,
-                decoration: InputDecoration(
-                    hintText: 'How much did you spend?',
-                    hintFadeDuration: const Duration(milliseconds: 30),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 1,
-                      ),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                            const BorderSide(color: Colors.red, width: 1.5)),
-                    focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                            const BorderSide(color: Colors.red, width: 1.5)),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                          color: Colors.black,
-                          width: 1,
-                        ))),
-                validator: (value) {
-                  return validateExpenseValue(value);
-                },
-                onSaved: (newValue) => expenseValue = double.parse(newValue!),
-              ),
-              widget.option == 'add'
-                  ? ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
-                          String? email =
-                              FirebaseAuth.instance.currentUser!.email;
-                          var userReference = db.collection("users").doc(email);
-                          await userReference
-                              .collection("dailyExpenses")
-                              .add(<String, dynamic>{
-                            'expenseName': expenseName,
-                            'expenseValue': expenseValue,
-                            'timeStamp': DateTime.now(),
-                          });
-                          await setDetailsMethods.addToCurrentSavings(currentSavings: currentSavings, expenseValue: expenseValue);
-                          await getStreakDetails();
-                          await db
-                              .collection('users')
-                              .doc(email)
-                              .collection('streaksDetails')
-                              .doc('details')
-                              .set(<String, dynamic>{
-                            'currentStreak': currentStreak,
-                            'maximumStreak': maximumStreak,
-                            'lastActiveDate': lastActiveDate
-                          }, SetOptions(merge: true));
-                          await setStreakActiveDetails(lastActiveDate: lastActiveDate!);
-                          await addExpenseToMonth();
-                          Navigator.pop(context);
-                        }
-                      },
-                      child: const Text('Add'),
-                    )
-                  : ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
-                          double previousExpense = await getPreviousExpense();
-                          widget.documentReference!.update(<String, dynamic>{
-                            'expenseName': expenseName,
-                            'expenseValue': expenseValue,
-                          });
-                          await setDetailsMethods.addToCurrentSavings(previousExpense : previousExpense, currentSavings : currentSavings, expenseValue : expenseValue);
-                          await addExpenseToMonth(
-                              previousExpense: previousExpense);
-                          Navigator.pop(context);
-                        }
-                      },
-                      child: const Text('Update'))
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -249,7 +346,7 @@ class _AddexpenseModalState extends State<AddexpenseModal> {
         widget.documentReference;
     final DocumentSnapshot documentSnapshot = await documentReference!.get();
     final data = documentSnapshot.data() as Map<String, dynamic>;
-    double previousExpense = data['expenseValue'];
+    double previousExpense = (data['expenseValue'] as num).toDouble();
     return previousExpense;
   }
 

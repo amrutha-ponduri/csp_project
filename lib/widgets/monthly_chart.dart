@@ -12,8 +12,18 @@ class YearlyChartPage extends StatefulWidget {
 
 class _YearlyChartPageState extends State<YearlyChartPage> {
   final List<String> months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec'
   ];
 
   Map<String, double> pocketMap = {};
@@ -55,7 +65,8 @@ class _YearlyChartPageState extends State<YearlyChartPage> {
     if (userEmail == null) return;
 
     final db = FirebaseFirestore.instance;
-    final collectionRef = db.collection('users').doc(userEmail).collection('pocketMoney');
+    final collectionRef =
+        db.collection('users').doc(userEmail).collection('pocketMoney');
     pocketMap.clear();
 
     final snapshot = await collectionRef.get();
@@ -74,7 +85,8 @@ class _YearlyChartPageState extends State<YearlyChartPage> {
     if (userEmail == null) return;
 
     final db = FirebaseFirestore.instance;
-    final collectionRef = db.collection('users').doc(userEmail).collection('monthlyExpenses');
+    final collectionRef =
+        db.collection('users').doc(userEmail).collection('monthlyExpenses');
     spentMap.clear();
 
     final snapshot = await collectionRef.get();
@@ -91,7 +103,8 @@ class _YearlyChartPageState extends State<YearlyChartPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE6F4FF), // Light Doraemon blue background
+      backgroundColor:
+          const Color(0xFFE6F4FF), // Light Doraemon blue background
       appBar: AppBar(
         title: const Text(
           'Doraemon’s Yearly Tracker',
@@ -106,11 +119,13 @@ class _YearlyChartPageState extends State<YearlyChartPage> {
         centerTitle: true,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF0099FF)))
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF0099FF)))
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
                 elevation: 5,
                 color: Colors.white,
                 child: Padding(

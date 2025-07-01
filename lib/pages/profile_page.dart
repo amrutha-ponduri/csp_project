@@ -4,11 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_expend/pages/target_page.dart';
-
 import 'package:smart_expend/pages/monthly_report_page.dart';
 import 'package:smart_expend/widgets/monthly_chart.dart';
-import 'package:smart_expend/pages/month_start_page.dart';
-
+import 'package:smart_expend/pages/store_pocketmoney.dart';
 import '../widgets/profile_info_card.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -25,23 +23,12 @@ class ProfilePageState extends State<ProfilePage> {
   bool _isEditingName = false;
   final _nameController = TextEditingController();
   late Future<Map<String, dynamic>?> getData;
-  // File? _imageFile;
-  // final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
     getData = getUserData();
   }
-
-  // Future<void> _pickImage() async {
-  //   final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-  //   if (pickedFile != null) {
-  //     setState(() {
-  //       _imageFile = File(pickedFile.path);
-  //     });
-  //   }
-  // }
 
   void _saveName() {
     if (_nameController.text.isNotEmpty) {
@@ -215,16 +202,15 @@ class ProfilePageState extends State<ProfilePage> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => MonthStartPage()));
+                                    builder: (context) => StorePocketMoney()));
                           },
                           child: ProfileInfoCard(
                               title: 'Store Pocket money',
                               value: "",
-                              icon: Icons.currency_rupee)
-                      ),
+                              icon: Icons.currency_rupee)),
                       SizedBox(height: 10),
                       InkWell(
-                          onTap: () async{
+                          onTap: () async {
                             final prefs = await SharedPreferences.getInstance();
                             await prefs.clear();
                             await FirebaseAuth.instance.signOut();
@@ -233,18 +219,18 @@ class ProfilePageState extends State<ProfilePage> {
                           child: ProfileInfoCard(
                               title: 'Log out',
                               value: "",
-                              icon: Icons.logout_outlined)
-                      ),
+                              icon: Icons.logout_outlined)),
                       InkWell(
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => TargetPage()));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => TargetPage()));
                           },
                           child: ProfileInfoCard(
                               title: 'See my target',
                               value: "",
-                              icon: Icons.arrow_outward)
-                      ),
-
+                              icon: Icons.arrow_outward)),
                     ],
                   ),
                 ),
@@ -270,4 +256,3 @@ Future<Map<String, dynamic>?> getUserData() async {
 }
 
 // Custom Widget for Profile Information
-

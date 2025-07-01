@@ -58,6 +58,7 @@ dependencies:
   top_modal_sheet: ^2.1.0
   syncfusion_flutter_charts: ^22.2.9
   font_awesome_flutter: ^10.8.0
+  flutter_arc_text: ^0.6.0
 
 dev_dependencies:
   flutter_test:
@@ -108,6 +109,15 @@ flutter:
         - asset: assets/fonts/Nunito-Regular.ttf
         - asset: assets/fonts/Nunito-Bold.ttf
           weight: 700
+    - family: Baloo2
+      fonts:
+        - asset: assets/fonts/Baloo2-Regular.ttf
+        - asset: assets/fonts/Baloo2-Medium.ttf
+          weight: 300
+        - asset: assets/fonts/Baloo2-SemiBold.ttf
+          weight: 500
+        - asset: assets/fonts/Baloo2-Bold.ttf
+          weight: 800
   
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

@@ -7,69 +7,77 @@ class LoadDetailsMethods {
   LoadDetailsMethods() {
     _fetchInitializationDetails();
   }
-  Future<Map<String,dynamic>> fetchMonthlyExpensesDetails({required int month, required int year}) async{
-    Map<String,dynamic> monthlyExpenses = <String,dynamic>{};
+  Future<Map<String, dynamic>> fetchMonthlyExpensesDetails(
+      {required int month, required int year}) async {
+    Map<String, dynamic> monthlyExpenses = <String, dynamic>{};
     final DocumentReference documentReference = userReference!
-    .collection('monthlyExpenses')
-    .doc('$year-${month}details');
+        .collection('monthlyExpenses')
+        .doc('$year-${month}details');
     final DocumentSnapshot documentSnapshot = await documentReference.get();
     if (documentSnapshot.exists) {
       final data = documentSnapshot.data() as Map<String, dynamic>;
-      monthlyExpenses['expenseValue'] = (await data['expenseValue'] as num).toDouble();
+      monthlyExpenses['expenseValue'] =
+          (await data['expenseValue'] as num).toDouble();
       monthlyExpenses['month'] = await data['month'];
     }
     return monthlyExpenses;
   }
 
-  Future<Map<String, dynamic>?> fetchPocketMoneyDetails({required int month, required int year}) async {
-    Map<String,dynamic> pocketMoney = <String, dynamic>{};
-    final DocumentReference documentReference = userReference!
-    .collection('pocketMoney')
-    .doc('$year-${month}details');
+  Future<Map<String, dynamic>?> fetchPocketMoneyDetails(
+      {required int month, required int year}) async {
+    Map<String, dynamic> pocketMoney = <String, dynamic>{};
+    final DocumentReference documentReference =
+        userReference!.collection('pocketMoney').doc('$year-${month}details');
     final DocumentSnapshot documentSnapshot = await documentReference.get();
     if (documentSnapshot.exists) {
       final data = documentSnapshot.data() as Map<String, dynamic>;
-      pocketMoney['pocketMoney'] = (await data['pocketMoney'] as num).toDouble();
+      pocketMoney['pocketMoney'] =
+          (await data['pocketMoney'] as num).toDouble();
       pocketMoney['month'] = await data['month'];
-      pocketMoney['targetSavings'] = (await data['targetSavings'] as num).toDouble();
+      pocketMoney['targetSavings'] =
+          (await data['targetSavings'] as num).toDouble();
       return pocketMoney;
     }
     return null;
   }
 
-  Future<Map<String, dynamic>?> fetchTargetProductDetails() async{
-    final documentReference  = userReference!.collection('targetProduct').doc('productDetails');
+  Future<Map<String, dynamic>?> fetchTargetProductDetails() async {
+    final documentReference =
+        userReference!.collection('targetProduct').doc('productDetails');
     Map<String, dynamic> targetProduct = <String, dynamic>{};
-    final docSnapshot  = await documentReference.get();
+    final docSnapshot = await documentReference.get();
     if (!docSnapshot.exists) {
       return null;
     }
-    final data = docSnapshot.data() as Map<String,dynamic>;
-    targetProduct['targetAmount'] = (await data['targetAmount'] as num). toDouble();
+    final data = docSnapshot.data() as Map<String, dynamic>;
+    targetProduct['targetAmount'] =
+        (await data['targetAmount'] as num).toDouble();
     targetProduct['productName'] = await data['targetProduct'];
     return targetProduct;
   }
 
-  Future<Map<String, dynamic>> fetchUserDetails() async{
-    final documentReference  = userReference!.collection('userDetails').doc('details');
+  Future<Map<String, dynamic>> fetchUserDetails() async {
+    final documentReference =
+        userReference!.collection('userDetails').doc('details');
     Map<String, dynamic> userDetails = <String, dynamic>{};
-    final docSnapshot  = await documentReference.get();
-    if(docSnapshot.exists) {
-      final data = docSnapshot.data() as Map<String,dynamic>;
-      userDetails['age'] = await  data['age'];
-      userDetails['email'] = await  data['emailAddress'];
+    final docSnapshot = await documentReference.get();
+    if (docSnapshot.exists) {
+      final data = docSnapshot.data() as Map<String, dynamic>;
+      userDetails['age'] = await data['age'];
+      userDetails['email'] = await data['emailAddress'];
       userDetails['name'] = await data['name'];
       userDetails['phoneNumber'] = await data['phoneNumber'];
     }
     return userDetails;
   }
 
-  Future<Map<String, dynamic>> fetchStreakDetails() async{
-    final documentReference  = userReference!.collection('streakDetails').doc('details');
+  Future<Map<String, dynamic>> fetchStreakDetails() async {
+    final documentReference =
+        userReference!.collection('streakDetails').doc('details');
     Map<String, dynamic> streakDetails = <String, dynamic>{};
-    final docSnapshot  = await documentReference.get();
-    if(docSnapshot.exists) {
-      final data = docSnapshot.data() as Map<String,dynamic>;
+    final docSnapshot = await documentReference.get();
+    if (docSnapshot.exists) {
+      final data = docSnapshot.data() as Map<String, dynamic>;
       streakDetails['currentStreak'] = await data['currentStreak'];
       streakDetails['lastActiveDate'] = await data['lastActiveDate'];
       streakDetails['maximumStreak'] = await data['maximumStreak'];
@@ -77,20 +85,22 @@ class LoadDetailsMethods {
     }
     return streakDetails;
   }
-  
-  Future<Map<String, dynamic>?> getCurrentSavings() async{
-    final docReference = userReference!.collection('savingsDetails').doc('currentSavings');
+
+  Future<Map<String, dynamic>?> getCurrentSavings() async {
+    final docReference =
+        userReference!.collection('savingsDetails').doc('currentSavings');
     final docSnapshot = await docReference.get();
     if (!docSnapshot.exists) {
       return null;
     }
     final data = docSnapshot.data();
     Map<String, dynamic> savingsDetails = data as Map<String, dynamic>;
-    return savingsDetails; 
+    return savingsDetails;
   }
 
   Future<double?> getPreviousSavings() async {
-    final documentReference = userReference!.collection('savingsDetails').doc('previousSavings');
+    final documentReference =
+        userReference!.collection('savingsDetails').doc('previousSavings');
     final docSnapshot = await documentReference.get();
     if (!docSnapshot.exists) {
       return null;

@@ -14,12 +14,11 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
+        body: ListView(
       children: [
         DailyExpenseChart(),
         DoraemonSummaryChart(),
       ],
-      )
-    );
+    ));
   }
 }

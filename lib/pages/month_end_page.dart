@@ -65,72 +65,72 @@ class _MonthEndPageState extends State<MonthEndPage>
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.deepPurple, Colors.purpleAccent],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0911B1),Color(0xFF2C7AE1), Color(0xFF68B1EC), Color(
+                0xFF89BFE4)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
-        child: Center(
-          child: FadeTransition(
-            opacity: _fadeIn,
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Card(
-                color: Colors.white.withOpacity(0.9),
-                elevation: 8,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/images/celebration_flying.png',scale: 0.6,),
+            Text('Worth a celebration!', style: TextStyle(color : Colors.white, fontSize: 30, fontFamily: 'Baloo2'),),
+            Center(
+              child: FadeTransition(
+                opacity: _fadeIn,
                 child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "$monthName ${widget.year}",
-                        style: const TextStyle(
-                            fontSize: 26, fontWeight: FontWeight.bold),
+                  padding: const EdgeInsets.all(20.0),
+                  child: Card(
+                    color: Colors.white.withOpacity(0.9),
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "$monthName ${widget.year}",
+                            style: const TextStyle(
+                                fontSize: 26, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            "You saved ₹${widget.savedAmount.toStringAsFixed(2)} in ${widget.month}!",
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w500),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            "Saved: ₹${widget.savedAmount.toStringAsFixed(2)} / ₹${widget.goalAmount.toStringAsFixed(2)}",
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                          const SizedBox(height: 20),
+                          LinearProgressIndicator(
+                            value: progress > 1 ? 1.0 : progress,
+                            backgroundColor: Colors.grey.shade300,
+                            color: progress >= 1 ? Colors.green : Colors.blue,
+                            minHeight: 12,
+                          ),
+                          const SizedBox(height: 30),
+                          Text(
+                            resultMessage,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w500),
+                          ),
+                          const SizedBox(height: 15),
+
+                        ],
                       ),
-                      const SizedBox(height: 20),
-                      Text(
-                        "You saved ₹${widget.savedAmount.toStringAsFixed(2)} this month!",
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        "Saved: ₹${widget.savedAmount.toStringAsFixed(2)} / ₹${widget.goalAmount.toStringAsFixed(2)}",
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                      const SizedBox(height: 20),
-                      LinearProgressIndicator(
-                        value: progress > 1 ? 1.0 : progress,
-                        backgroundColor: Colors.grey.shade300,
-                        color: progress >= 1 ? Colors.green : Colors.blue,
-                        minHeight: 12,
-                      ),
-                      const SizedBox(height: 30),
-                      Text(
-                        resultMessage,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 15),
-                      // Text(
-                      //   "It took you $monthsTaken month(s) to save this amount.",
-                      //   textAlign: TextAlign.center,
-                      //   style: const TextStyle(
-                      //     fontSize: 16,
-                      //     fontStyle: FontStyle.italic,
-                      //     color: Colors.black87,
-                      //   ),
-                      // ),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
