@@ -46,3 +46,4 @@ app.*.map.json
 lib/firebase_options.dart
 lib/streamguide.dart
 android/app/src/main/res/values/strings.xml
+/functions/

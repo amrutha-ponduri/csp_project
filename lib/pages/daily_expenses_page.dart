@@ -142,6 +142,7 @@ class _DailyExpensesState extends State<DailyExpenses> {
                 }
                 final expenses = snapshot.data!.docs.map((doc) {
                   final data = doc.data();
+                  print(data['category']);
                   return Expense(
                     title: data['expenseName'],
                     amount: (data['expenseValue'] as num).toDouble(),

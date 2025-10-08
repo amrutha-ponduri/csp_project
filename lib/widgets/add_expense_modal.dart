@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:smart_expend/helper_classes/insights_helpers.dart';
 import 'package:smart_expend/loading_data/set_details_methods.dart';
 
 class AddExpenseModal extends StatefulWidget {
@@ -95,7 +96,7 @@ class _AddExpenseModalState extends State<AddExpenseModal> with SingleTickerProv
             Image.asset('assets/images/dialog1.png'),
 
             Container(
-              height: 560,
+              height: 510,
               decoration: BoxDecoration(
                 image: DecorationImage(image: AssetImage('assets/images/doraemon_flying.png'), fit: BoxFit.cover, alignment: Alignment.center),
                 color: Colors.transparent
@@ -196,6 +197,15 @@ class _AddExpenseModalState extends State<AddExpenseModal> with SingleTickerProv
                                         onPressed: () async {
                                           if (_formKey.currentState!.validate()) {
                                             _formKey.currentState!.save();
+                                            Insights insights = Insights();
+                                            String response = await insights.categorizeExpenses(expenses : <String, dynamic> {
+                                              'name' : expenseName,
+                                              'amount' : expenseValue,
+                                            });
+                                            print(response);
+                                            if (response == 'Invalid') {
+                                              response = 'Others';
+                                            }
                                             String? email =
                                                 FirebaseAuth.instance.currentUser!.email;
                                             var userReference = db.collection("users").doc(email);
@@ -204,6 +214,7 @@ class _AddExpenseModalState extends State<AddExpenseModal> with SingleTickerProv
                                                 .add(<String, dynamic>{
                                               'expenseName': expenseName,
                                               'expenseValue': expenseValue,
+                                              'category' : response,
                                               'timeStamp': DateTime.now(),
                                             });
                                             await setDetailsMethods.addToCurrentSavings(currentSavings: currentSavings, expenseValue: expenseValue);
@@ -238,9 +249,21 @@ class _AddExpenseModalState extends State<AddExpenseModal> with SingleTickerProv
                                         onPressed: () async {
                                           if (_formKey.currentState!.validate()) {
                                             _formKey.currentState!.save();
+
+                                            Insights insights = Insights();
+
+                                            String response = await insights.categorizeExpenses(expenses : <String, dynamic> {
+                                              'name' : expenseName,
+                                              'amount' : expenseValue,
+                                            });
+                                            if (response == 'Invalid') {
+                                              response = 'Other';
+                                            }
+
                                             double previousExpense = await getPreviousExpense();
                                             widget.documentReference!.update(<String, dynamic>{
                                               'expenseName': expenseName,
+                                              'category' : response,
                                               'expenseValue': expenseValue,
                                             });
                                             await setDetailsMethods.addToCurrentSavings(previousExpense : previousExpense, currentSavings : currentSavings, expenseValue : expenseValue);
